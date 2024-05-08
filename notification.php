@@ -1,7 +1,3 @@
-
-
-
-
 <?php
 
 define("NOTIFICATIONS_FILE", "notifications.json");
@@ -18,7 +14,7 @@ date_default_timezone_set('Asia/Qatar');
 $currentTimestamp = time();
 
 // Format the timestamp as per the specified format
-$qatarTime = date("l, j F, Y - h:i A", $currentTimestamp);
+$qatarTime = date("d M Y h:i A", $currentTimestamp);
 
 $notifications = file_exists(NOTIFICATIONS_FILE) ? json_decode(file_get_contents(NOTIFICATIONS_FILE), true) : [];
 
@@ -171,6 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/favicon.png" type="image/x-icon">
     <title>Notifications</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
@@ -183,6 +180,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/2.0.7/sorting/datetime-moment.js"></script>
+    
     <style>
         .header-section {
             display: flex;
@@ -229,29 +228,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <tbody>
     <?php foreach ($notifications as $notification) {
 
-    // $currentFormattedTime = $notification["timestamp"];
-
-    // $timestamp = strtotime($currentFormattedTime);
-
-    // if (!$timestamp) {
-    //     $sortableDate = "0000-00-00 00:00:00"; 
-    //     $qatarTime = "Invalid date format"; 
-    // } else {
- 
-    //     $sortableDate = date('Y-m-d H:i:s', $timestamp);
-    //     $qatarTime = $currentFormattedTime; 
-    // }
-
-   
     echo '<tr>';
     echo '<td>' . $notification["id"] . '</td>';
-    echo '<td>' . htmlspecialchars($notification["name"]) . '</td>';
-    echo '<td>' . htmlspecialchars($notification["email"]) . '</td>';
-    echo '<td>' . htmlspecialchars($notification["phone"]) . '</td>';
-    echo '<td>' . htmlspecialchars($notification["file_no"]) . '</td>';
-    echo '<td>' . htmlspecialchars($notification["title"]) . '</td>';
-    echo '<td>' . htmlspecialchars($notification["author"]) . '</td>';
-    echo '<td>' . htmlspecialchars($notification["timestamp"]) . '</td>';
+    echo '<td>' . $notification["name"] . '</td>';
+    echo '<td>' . $notification["email"] . '</td>';
+    echo '<td>' . $notification["phone"] . '</td>';
+    echo '<td>' . $notification["file_no"] . '</td>';
+    echo '<td>' . $notification["title"] . '</td>';
+    echo '<td>' . $notification["author"] . '</td>';
+    echo '<td>' . $notification["timestamp"] . '</td>';
     echo '</tr>';
 }
 
@@ -268,9 +253,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             paging: true,
             searching: true,
             ordering: true,
-            order: [[7, 'DESC']], // Order by Timestamp descending
+            order: [0, 'desc'],
+            pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
             dom: 'Bfrtip',
-             buttons: [
+            buttons: [
                 {
                     extend: 'collection',
                     text: 'Export',
@@ -279,32 +266,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             extend: 'excelHtml5',
                             text: 'Excel',
                             titleAttr: 'Export as Excel'
+                        },
+                        // Uncomment below to include CSV and PDF export options
+                        /*
+                        {
+                            extend: 'csvHtml5',
+                            text: 'CSV',
+                            titleAttr: 'Export as CSV'
+                        },
+                        {
+                            extend: 'pdfHtml5',
+                            text: 'PDF',
+                            titleAttr: 'Export as PDF',
+                            orientation: 'portrait',
+                            pageSize: 'A4'
                         }
-                        // {
-                        //     extend: 'csvHtml5',
-                        //     text: 'CSV',
-                        //     titleAttr: 'Export as CSV'
-                        // },
-                        // {
-                        //     extend: 'pdfHtml5',
-                        //     text: 'PDF',
-                        //     titleAttr: 'Export as PDF',
-                        //     orientation: 'portrait',
-                        //     pageSize: 'A4'
-                        // }
+                        */
                     ]
+                },
+                'colvis', // Button to control column visibility
+                {
+                    extend: 'print',
+                    text: 'Print',
+                    titleAttr: 'Print Table'
                 }
             ],
             columnDefs: [
-                { targets: 7, type: 'date' }
+                { targets: 7, type: 'date' } // Assuming column 7 is a date
             ]
         });
-         // Reload page every 10 seconds
+
+        // Reload page every 10 seconds
         setTimeout(function(){
             window.location.reload();
         }, 10000);
     });
-
 </script>
 
 </body>
