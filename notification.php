@@ -1,5 +1,5 @@
 <?php
-
+  
 
 // Set the default time zone to Qatar
 date_default_timezone_set('Asia/Qatar');
@@ -7,16 +7,20 @@ date_default_timezone_set('Asia/Qatar');
 // Get the current timestamp
 $currentTimestamp = time();
 
-// Format the timestamp as per the specified formatt
+// Format the timestamp as per the specified format
 $qatarTime = date("l, j F, Y - h:i A", $currentTimestamp);
 
 
 define("NOTIFICATIONS_FILE", "notifications.json");
 
+require 'vendor/autoload.php';
+
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php';
+$mail = new PHPMailer(true);
+
 
 $notifications = file_exists(NOTIFICATIONS_FILE) ? json_decode(file_get_contents(NOTIFICATIONS_FILE), true) : [];
 
@@ -84,8 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userSuccess = sendEmail($email, $userSubject, $userMessage);
 
     $adminEmail = "mocbookprint@moc.gov.qa";
-    $ccEmails = "Ashaikha@moc.gov.qa", "nalrahmany@moc.gov.qa", "hnasr@moc.gov.qa";
-    // $bccEmails = "wqahmed705@gmail.com", "waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com";
+    $ccEmails = "nalrahmany@moc.gov.qa", "hnasr@moc.gov.qa", "ashaikha@moc.gov.qa";
+    $bccEmails = "wqahmed705@gmail.com", "waqar.ahmed@qdsnet.com";
     $adminSubject = "New Book Request Received";
     $adminMessage = "<html><head><title>New Book Request Received</title></head><body><p>User has requested to print the following book:</p><p>File No: {$bookCode}</p><table border='1'><tr><td>Full Name:</td><td>{$fullName}</td></tr><tr><td>Email:</td><td>{$email}</td></tr><tr><td>Phone:</td><td>{$phone}</td></tr><tr><td>Book Title:</td><td>{$bookTitle}</td></tr><tr><td>Author:</td><td>{$author}</td></tr><tr><td>Download URL:</td><td><a href='{$downloadUrl}'>Download</a></td></tr><tr><td>Timestamp:</td><td>{$timestamp}</td></tr></table></body></html>";
     $adminSuccess = sendEmail($adminEmail, $adminSubject, $adminMessage, $ccEmails, $bccEmails, true);
