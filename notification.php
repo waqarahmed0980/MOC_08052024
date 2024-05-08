@@ -1,7 +1,5 @@
 <?php
 
-
-
 // Set the default time zone to Qatar
 date_default_timezone_set('Asia/Qatar');
 
