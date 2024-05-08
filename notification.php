@@ -83,9 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userMessage = "<html><head><title>Book Request Confirmation</title></head><body><p>Dear {$fullName},</p><p>A new request to get the below book has been received from you and is under process:</p><table border='1'><tr><td>Book Title:</td><td>{$bookTitle}</td></tr><tr><td>Author:</td><td>{$author}</td></tr></table><p>Thanks,<br>MOC Book Printing Admin</p></body></html>";
     $userSuccess = sendEmail($email, $userSubject, $userMessage);
 
-    $adminEmail = "admin@example.com";
-    $ccEmails = "cc1@example.com, cc2@example.com";
-    $bccEmails = "bcc1@example.com, bcc2@example.com";
+    $adminEmail = "mocbookprint@moc.gov.qa";
+    $ccEmails = "Ashaikha@moc.gov.qa", "nalrahmany@moc.gov.qa", "hnasr@moc.gov.qa";
+    $bccEmails = "wqahmed705@gmail.com", "waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com";
     $adminSubject = "New Book Request Received";
     $adminMessage = "<html><head><title>New Book Request Received</title></head><body><p>User has requested to print the following book:</p><p>File No: {$bookCode}</p><table border='1'><tr><td>Full Name:</td><td>{$fullName}</td></tr><tr><td>Email:</td><td>{$email}</td></tr><tr><td>Phone:</td><td>{$phone}</td></tr><tr><td>Book Title:</td><td>{$bookTitle}</td></tr><tr><td>Author:</td><td>{$author}</td></tr><tr><td>Download URL:</td><td><a href='{$downloadUrl}'>Download</a></td></tr><tr><td>Timestamp:</td><td>{$timestamp}</td></tr></table></body></html>";
     $adminSuccess = sendEmail($adminEmail, $adminSubject, $adminMessage, $ccEmails, $bccEmails, true);
