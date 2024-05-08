@@ -1,8 +1,9 @@
 <?php
 
+
 $strings = [
 "h2" => ["en" => "Book printing", "ar" => "طباعة الكتاب"],
-    "button" => ["en" => "Get the book", "ar" => "اطبع الكتاب"],
+    "button" => ["en" => "Get the book" "ar" => "اطبع الكتاب"],
     "pop_up_p" => ["en" => "Submit your information", "ar" => "أرسل معلوماتك"],
     "uname" => ["en" => "Full Name", "ar" => "الاسم الكامل"],
     "uemail" => ["en" => "Email", "ar" => "بريد إلكتروني"],
