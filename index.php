@@ -42,6 +42,7 @@ $books = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOC Book Printing</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="/images/favicon.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <style>
         body {
@@ -175,8 +176,8 @@ $books = [
     <style>
         @font-face {
             font-family: 'QatarFont';
-            src: url('QatarFont-Regular.woff2') format('woff2'),
-                 url('QatarFont-Regular.woff') format('woff');
+            src: url('font/QatarFont-Regular.woff2') format('woff2'),
+                 url('font/QatarFont-Regular.woff') format('woff');
             font-weight: normal;
             font-style: normal;
         }
@@ -302,6 +303,7 @@ $books = [
         document.getElementById("submission-form").addEventListener("submit", function (e) {
             e.preventDefault();
             const formData = $(this).serialize();
+            $('#exampleModal').modal('hide');
 
             $.ajax({
                 url: 'notification.php',
@@ -309,7 +311,7 @@ $books = [
                 data: formData,
                 success: function() {
                     $('#submission-form').trigger("reset");
-                    $('#exampleModal').modal('hide');
+                // $('#exampleModal').modal('hide');
                     toastr.success("Notification Sent!", "Success", {
                         positionClass: "toast-top-right",
                         timeOut: 5000,

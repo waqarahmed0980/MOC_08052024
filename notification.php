@@ -78,33 +78,34 @@ HTML;
 }
 
 
-
-function sendSMS($phone, $message) {
-    $url = "https://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
-    $params = http_build_query([
-        'customerID' => '1465',
-        'userName' => 'qauthor',
-        'userPassword' => 'sT@4147uiy',
-        'originator' => 'MOC',
-        'smsText' => $message,
-        'recipientPhone' => $phone,
-        'messageType' => 'ArabicWithLatinNumbers',
-        'defDate' => '',
-        'blink' => 'false',
-        'flash' => 'false',
-        'Private' => 'false'
-    ]);
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url . '?' . $params);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    curl_close($ch);
-    return $response;
+function formatEmailAdmin($bookTitle, $author) {
+    return <<<HTML
+    <html>
+    <head>
+    <title>Notification</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; direction: rtl; text-align: right; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+    </head>
+    <body>
+    <p>User has requested for book printing.</p>
+    <p>Below are the details of the book requested:</p>
+    <table>
+        <tr><th>Book Title</th><td>{$bookTitle}</td></tr>
+        <tr><th>Author</th><td>{$author}</td></tr>
+    </table>
+    <p>Thanks,<br>MOC Book Printing Admin</p>
+    </body>
+    </html>
+HTML;
 }
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     $fullName = htmlspecialchars($_POST['fullName']);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $phone = htmlspecialchars($_POST['phone']);
@@ -113,23 +114,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $downloadUrl = filter_var($_POST['download_url'], FILTER_SANITIZE_URL);
     $bookCode = htmlspecialchars($_POST['bookCode']);
 
-    $userMessage = formatEmail($fullName, $bookTitle, $author);
-    $userSuccess = sendEmail($email, "Book Request Confirmation", $userMessage);
-
     $adminEmail = "mocbookprint@moc.gov.qa";
     $ccEmails = "nalrahmany@moc.gov.qa,hnasr@moc.gov.qa,ashaikha@moc.gov.qa";
     $bccEmails = "wqahmed705@gmail.com,waqar.ahmed@qdsnet.com";
 
-    $adminMessage = formatEmail($fullName, $bookTitle, $author);
+    // $adminEmail = "mocbookprint@moc.gov.qa";
+    // $ccEmails = "nalrahmany@moc.gov.qa,hnasr@moc.gov.qa,ashaikha@moc.gov.qa";
+    // $bccEmails = "wqahmed705@gmail.com,waqar.ahmed@qdsnet.com";
+
+    $userMessage = formatEmail($fullName, $bookTitle, $author);
+    $userSuccess = sendEmail($email, "Book Request Confirmation", $userMessage);
+
+    $adminMessage = formatEmailAdmin($bookTitle, $author);
     $adminSuccess = sendEmail($adminEmail, "New Book Request Received", $adminMessage, $ccEmails, $bccEmails);
 
-    $smsMessage = "Thank you, {$fullName}, for your request '{$bookTitle}'. It is being processed.";
-    sendSMS($phone, $smsMessage);
+    // Send SMS and trigger email with response
+    $smsResponse = sendSMS($phone, "Thank you, {$fullName}, for your request '{$bookTitle}'. It is being processed.");
 
-    // Send SMS
-    $smsMessage = "Thank you, {$fullName}, for your request '{$bookTitle}'. It is being processed.";
-    sendSMS($phone, $smsMessage);
-
+    // Load existing notifications
+    $notifications = json_decode(file_get_contents(NOTIFICATIONS_FILE), true) ?: [];
     $newNotification = [
         "id" => count($notifications) + 1,
         "name" => $fullName,
@@ -139,26 +142,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         "title" => $bookTitle,
         "author" => $author,
         "download_url" => $downloadUrl,
-        "timestamp" => $timestamp
-    ];
+        "timestamp" => $qatarTime,
+        "smslog" => $smsResponse
 
-
-// Save notification
-    $newNotification = [
-        "id" => count($notifications) + 1,
-        "name" => $fullName,
-        "email" => $email,
-        "phone" => $phone,
-        "file_no" => $bookCode,
-        "title" => $bookTitle,
-        "author" => $author,
-        "download_url" => $downloadUrl,
-        "timestamp" => $qatarTime
     ];
 
     $notifications[] = $newNotification;
     file_put_contents(NOTIFICATIONS_FILE, json_encode($notifications, JSON_PRETTY_PRINT));
+
+
+    function sendSMS($phone, $message) {
+        $url = "http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
+        $params = http_build_query([
+            'customerID' => '1465',
+            'userName' => 'qauthor',
+            'userPassword' => 'sT@4147uiy',
+            'originator' => 'MOC',
+            'smsText' => $message,
+            'recipientPhone' => $phone,
+            'messageType' => 'ArabicWithLatinNumbers',
+            'defDate' => '',
+            'blink' => 'false',
+            'flash' => 'false',
+            'Private' => 'false'
+        ]);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url . '?' . $params);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
+    }
+
+
 }
+
 
 ?>
 
