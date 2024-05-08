@@ -1,9 +1,8 @@
 <?php
 
-
 $strings = [
 "h2" => ["en" => "Book printing", "ar" => "طباعة الكتاب"],
-    "button" => ["en" => "Get the book" "ar" => "اطبع الكتاب"],
+    "button" => ["en" => "Get the book", "ar" => "اطبع الكتاب"],
     "pop_up_p" => ["en" => "Submit your information", "ar" => "أرسل معلوماتك"],
     "uname" => ["en" => "Full Name", "ar" => "الاسم الكامل"],
     "uemail" => ["en" => "Email", "ar" => "بريد إلكتروني"],
@@ -176,8 +175,8 @@ $books = [
     <style>
         @font-face {
             font-family: 'QatarFont';
-            src: url('QatarFont-Regular.woff2') format('woff2'),
-                 url('QatarFont-Regular.woff') format('woff');
+            src: url('font/QatarFont-Regular.woff2') format('woff2'),
+                 url('font/QatarFont-Regular.woff') format('woff');
             font-weight: normal;
             font-style: normal;
         }
