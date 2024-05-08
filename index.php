@@ -1,14 +1,14 @@
 <?php
 
 $strings = [
-    "h2" => ["en" => "Book printing", "ar" => "طباعة الكتاب"],
+"h2" => ["en" => "Book printing", "ar" => "طباعة الكتاب"],
     "button" => ["en" => "Get the book", "ar" => "اطبع الكتاب"],
     "pop_up_p" => ["en" => "Submit your information", "ar" => "أرسل معلوماتك"],
     "uname" => ["en" => "Full Name", "ar" => "الاسم الكامل"],
     "uemail" => ["en" => "Email", "ar" => "بريد إلكتروني"],
     "uphone" => ["en" => "Phone", "ar" => "هاتف"],
-    "close_btn" => ["en" => "Close", "ar" => "يغلق"],
-    "submit_btn" => ["en" => "Submit", "ar" => "يُقدِّم"],
+    "close_btn" => ["en" => "Close", "ar" => "إغلاق"],
+    "submit_btn" => ["en" => "Submit", "ar" => "إرسال"],
     "book_1_title" => ["en" => "Metropolis of Culture", "ar" => "حواضر الثقافة"],
     "book_2_title" => ["en" => "Archaeological School in Qatar", "ar" => "المدرسة الأثرية في قطر"],
     "book_3_title" => ["en" => "Pearls of the Gulf", "ar" => "لؤلؤ الخليج"],
@@ -16,6 +16,8 @@ $strings = [
     "book_2_author" => ["en" => "Salma Salah Al-Qibti", "ar" => "سلمى صلاح القبطي"],
     "book_3_author" => ["en" => "Khaled Abdullah Abdul Aziz Ziara", "ar" => "خالد عبد الله عبد العزيز زيارة"],
 ];
+
+
 
 // Set the language
 $lang = isset($_GET['lang']) ? $_GET['lang'] : 'ar';
@@ -92,6 +94,39 @@ $books = [
             text-align: <?php echo $textAlign; ?>;
         }
 
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding-left: 15px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            text-align: <?php echo $textAlign; ?>;
+
+        }
+
+        .modal-body {
+            text-align: <?php echo $textAlign; ?>;
+        }
+
+        .modal-header .close {
+            text-align: <?php echo $textAlign; ?>;
+            margin: -1rem -1rem -1rem -1rem;
+        }
+
+        .btn {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding-left: 15px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            text-align: <?php echo $textAlign; ?>;
+
+        }
+
         .card-title {
             margin-bottom: 5px;
         }
@@ -132,8 +167,25 @@ $books = [
         .toast-top-right {
             top: 12px;
             right: 12px;
+            display: none !important;
         }
     </style>
+
+        <?php if ($lang === 'ar'): ?>
+    <style>
+        @font-face {
+            font-family: 'QatarFont';
+            src: url('font/QatarFont-Regular.woff2') format('woff2'),
+                 url('font/QatarFont-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body, button, input, textarea {
+            font-family: 'QatarFont', sans-serif;
+        }
+    </style>
+    <?php endif; ?>
+
 </head>
 <body class="text-<?php echo $alignment; ?>">
 
@@ -179,7 +231,7 @@ $books = [
                             <img src="images/book-<?php echo $book['id']; ?>.jpg" class="card-img" alt="<?php echo $strings[$book['title']][$lang]; ?>">
                         </div>
                         <div class="col">
-                            <div class="card-body">
+                            <div class="card-body mt-2">
                                 <h5 class="card-title"><?php echo $strings[$book['title']][$lang]; ?></h5>
                                 <p class="card-text"><?php echo $strings[$book['author']][$lang]; ?></p>
                                 <button class="btn btn-select" data-toggle="modal" data-target="#exampleModal"
@@ -208,19 +260,20 @@ $books = [
                 <div class="modal-body">
                     <p><?php echo $strings["pop_up_p"][$lang]; ?></p>
                     <form id="submission-form" method="post" action="notification.php">
-                        <input type="hidden" name="book_title" id="book_title">
-                        <input type="hidden" name="author" id="author">
-                        <input type="hidden" name="download_url" id="download_url">
-                        <input type="hidden" name="bookCode" id="bookCode">
+                        <input  type="hidden" name="book_title" id="book_title">
+                        <input  type="hidden" name="author" id="author">
+                        <input  type="hidden" name="download_url" id="download_url">
+                        <input  type="hidden" name="bookCode" id="bookCode">
                         <div class="form-group">
-                            <label for="fullName"><?php echo $strings["uname"][$lang]; ?></label>
-                            <input type="text" class="form-control" id="fullName" name="fullName" required>
+                            <label for="fullName"><?php echo $strings["uname"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
+                            <input type="text" required="required" class="form-control" id="fullName" name="fullName" required>
                         </div>
                         <div class="form-group">
-                            <label for="email"><?php echo $strings["uemail"][$lang]; ?></label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="email"><?php echo $strings["uemail"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
+                            <input type="email" required="required" class="form-control" id="email" name="email" required>
                         </div>
-                        <div classumper_group-label for="phone"><?php echo $strings["uphone"][$lang]; ?></label>
+                        <div class="form-group">
+                         <label for="phone"><?php echo $strings["uphone"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
                             <input type="tel" class="form-control" id="phone" name="phone" required>
                         </div>
                         <div class="modal-footer">
@@ -255,14 +308,13 @@ $books = [
                 type: 'POST',
                 data: formData,
                 success: function() {
-                    $('#exampleModal').modal('hide');
-                    // toastr.success("Notification Sent!", "Success", {
-                    //     positionClass: "toast-top-right",
-                    //     timeOut: 5000,
-                    //     extendedTimeOut: 1000,
-                    // });
                     $('#submission-form').trigger("reset");
                     $('#exampleModal').modal('hide');
+                    toastr.success("Notification Sent!", "Success", {
+                        positionClass: "toast-top-right",
+                        timeOut: 5000,
+                        extendedTimeOut: 1000,
+                    });
                 },
                 error: function(xhr, status, error) {
                     const errorMessage = xhr.status + ': ' + xhr.statusText;
@@ -271,6 +323,7 @@ $books = [
                         timeOut: 5000,
                         extendedTimeOut: 1000,
                     });
+                    $('#submission-form').trigger("reset");
                 }
             });
         });
