@@ -1,0 +1,91 @@
+body {
+    background-color: #f5f2e9;
+    background-image: url("images/background-moc.png");
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+.book-card {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.card {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 45rem; /* Increased size */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    background-color: white;
+    padding: 10px;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 15px; /* Add left padding */
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: left;
+}
+
+.card-title {
+    margin-bottom: 5px;
+}
+
+.card-text {
+    margin-bottom: 5px;
+}
+
+.card-img {
+    width: 140px; /* Adjusted size */
+    height: auto;
+    object-fit: cover;
+}
+
+.btn-select {
+    background-color: black;
+    color: white;
+}
+
+.btn-select:hover {
+    background-color: #8A1538;
+    color: white;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0 auto;
+}
+
+.toast-top-right {
+    top: 12px;
+    right: 12px;
+}
