@@ -1,1 +1,12 @@
-
+[
+    {
+        "id": 1,
+        "name": "Syed Nabeel",
+        "email": "syednabeeljavedzaidi@gmail.com",
+        "phone": "03452335376",
+        "title": "Book 3",
+        "author": "Author 3",
+        "download_url": "downloads\/book-3.pdf",
+        "timestamp": "5\/7\/2024, 10:19:04 PM"
+    }
+]
