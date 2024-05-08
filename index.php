@@ -2,7 +2,7 @@
 
 $strings = [
     "h2" => ["en" => "Book printing", "ar" => "طباعة الكتاب"],
-    "button" => ["en" => "Get the book", "ar" => "اطبع الكتاب"],
+    "button" => ["en" => "Get the book", "ar" => "احصل على الكتاب"],
     "pop_up_p" => ["en" => "Submit your information", "ar" => "أرسل معلوماتك"],
     "uname" => ["en" => "Full Name", "ar" => "الاسم الكامل"],
     "uemail" => ["en" => "Email", "ar" => "بريد إلكتروني"],
@@ -137,19 +137,27 @@ $books = [
 </head>
 <body class="text-<?php echo $alignment; ?>">
 
+
+
+
     <!-- Language Switcher -->
     <?php  if ($_GET['lang'] == 'en') { ?>
-<div class="d-flex justify-content-end w-100 pr-5 mt-2">
+<div class="d-flex justify-content-end w-100 pr-4 mt-2">
     <a href="?lang=ar" class="link">AR </a>
 </div>
 
 <?php } else { ?>
 
-<div class="d-flex justify-content-end w-100 pl-5 mt-2">
+<div class="d-flex justify-content-end w-100 pl-4 mt-2">
     <a href="?lang=en" class="link">EN</a>
 </div>
 
 <?php } ?>
+
+
+
+
+
 
 <!-- Header -->
     <nav class="navbar navbar-light justify-content-center" style="margin-top: -30vh;">
@@ -171,10 +179,10 @@ $books = [
                             <img src="images/book-<?php echo $book['id']; ?>.jpg" class="card-img" alt="<?php echo $strings[$book['title']][$lang]; ?>">
                         </div>
                         <div class="col">
-                            <div class="card-body mt-4">
+                            <div class="card-body">
                                 <h5 class="card-title"><?php echo $strings[$book['title']][$lang]; ?></h5>
                                 <p class="card-text"><?php echo $strings[$book['author']][$lang]; ?></p>
-                               <button class="btn btn-select" data-toggle="modal" data-target="#exampleModal"
+                                <button class="btn btn-select" data-toggle="modal" data-target="#exampleModal"
     onclick="setModalData('<?php echo $strings[$book['title']][$lang]; ?>', '<?php echo $strings[$book['author']][$lang]; ?>', '<?php echo $book['download_url']; ?>', '<?php echo $book['id']; ?>')">
     <?php echo $strings["button"][$lang]; ?>
 </button>
@@ -202,18 +210,18 @@ $books = [
                     <form id="submission-form" method="post" action="notification.php">
                         <input type="hidden" name="book_title" id="book_title">
                         <input type="hidden" name="author" id="author">
-                        <input type="hidden" name="download_url" id "download_url">
-                        <input type="hidden" name="timestamp" id="timestamp">
+                        <input type="hidden" name="download_url" id="download_url">
+                        <input type="hidden" name="bookCode" id="bookCode">
                         <div class="form-group">
                             <label for="fullName"><?php echo $strings["uname"][$lang]; ?></label>
                             <input type="text" class="form-control" id="fullName" name="fullName" required>
                         </div>
                         <div class="form-group">
-                            <label for "email"><?php echo $strings["uemail"][$lang]; ?></label>
-                            <input type="email" class="form-control" id "email" name="email" required>
+                            <label for="email"><?php echo $strings["uemail"][$lang]; ?></label>
+                            <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                         <div classumper_group-label for="phone"><?php echo $strings["uphone"][$lang]; ?></label>
-                            <input type="tel" class="form-control" id "phone" name="phone" required>
+                            <input type="tel" class="form-control" id="phone" name="phone" required>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo $strings["close_btn"][$lang]; ?></button>
@@ -230,46 +238,43 @@ $books = [
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="moc.js"></script>
     <script>
-    function setModalData(title, author, downloadUrl, bookId) {
-        document.getElementById("exampleModalLabel").innerText = title;
-        document.getElementById("book_title").value = title;
-        document.getElementById("bookCode").value = 'Book-' + bookId;
-        document.getElementById("author").value = author;
-        document.getElementById("download_url").value = downloadUrl;
-        document.getElementById("timestamp").value = new Date().toLocaleString("en-US", {timeZone: "Asia/Qatar"});
-    }
+        function setModalData(title, author, downloadUrl, bookCode) {
+            document.getElementById("exampleModalLabel").innerText = title;
+            document.getElementById("book_title").value = title;
+            document.getElementById("author"). value = author;
+            document.getElementById("download_url").value = downloadUrl;
+            document.getElementById("bookCode").value = 'Book-'+ bookCode;
+        }
 
-    document.getElementById("submission-form").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const formData = $(this).serialize();
+        document.getElementById("submission-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
 
-        $.ajax({
-            url: 'notification.php',
-            type: 'POST',
-            data: formData,
-            success: function() {
-                $('#exampleModal').modal('hide');
-                toastr.success("Notification Sent!", "Success", {
-                    positionClass: "toast-top-right",
-                    timeOut: 5000,
-                    extendedTimeOut: 1000,
-                });
-                document.getElementById("submission-form").reset(); // Clear the form fields after successful submission
-            },
-            error: function(xhr, status, error) {
-                const errorMessage = xhr.status + ': ' + xhr.statusText;
-                toastr.error("Failed to send notification - " + errorMessage, "Error", {
-                    positionClass: "toast-top-right",
-                    timeOut: 5000,
-                    extendedTimeOut: 1000,
-                });
-            }
+            $.ajax({
+                url: 'notification.php',
+                type: 'POST',
+                data: formData,
+                success: function() {
+                    $('#exampleModal').modal('hide');
+                    // toastr.success("Notification Sent!", "Success", {
+                    //     positionClass: "toast-top-right",
+                    //     timeOut: 5000,
+                    //     extendedTimeOut: 1000,
+                    // });
+                    $('#submission-form').trigger("reset");
+                    $('#exampleModal').modal('hide');
+                },
+                error: function(xhr, status, error) {
+                    const errorMessage = xhr.status + ': ' + xhr.statusText;
+                    toastr.error("Failed to send notification - " + errorMessage, "Error", {
+                        positionClass: "toast-top-right",
+                        timeOut: 5000,
+                        extendedTimeOut: 1000,
+                    });
+                }
+            });
         });
-    });
-</script>
-
-
+    </script>
 
 </body>
 </html>
-
