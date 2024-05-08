@@ -7,7 +7,7 @@ date_default_timezone_set('Asia/Qatar');
 // Get the current timestamp
 $currentTimestamp = time();
 
-// Format the timestamp as per the specified format
+// Format the timestamp as per the specified formatt
 $qatarTime = date("l, j F, Y - h:i A", $currentTimestamp);
 
 
