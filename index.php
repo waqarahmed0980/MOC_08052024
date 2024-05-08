@@ -2,7 +2,7 @@
 
 $strings = [
     "h2" => ["en" => "Book printing", "ar" => "طباعة الكتاب"],
-    "button" => ["en" => "Get the book", "ar" => "احصل على الكتاب"],
+    "button" => ["en" => "Get the book", "ar" => "اطبع الكتاب"],
     "pop_up_p" => ["en" => "Submit your information", "ar" => "أرسل معلوماتك"],
     "uname" => ["en" => "Full Name", "ar" => "الاسم الكامل"],
     "uemail" => ["en" => "Email", "ar" => "بريد إلكتروني"],
@@ -14,7 +14,7 @@ $strings = [
     "book_3_title" => ["en" => "Pearls of the Gulf", "ar" => "لؤلؤ الخليج"],
     "book_1_author" => ["en" => "Civilization Scholars", "ar" => "علماء الحضارة"],
     "book_2_author" => ["en" => "Salma Salah Al-Qibti", "ar" => "سلمى صلاح القبطي"],
-    "book_3_author" => ["en" => "Khaled Abdullah Abdul Aziz Ziara", "ar" => "خالد عبد الله عبد العزيز زيارة" ],
+    "book_3_author" => ["en" => "Khaled Abdullah Abdul Aziz Ziara", "ar" => "خالد عبد الله عبد العزيز زيارة"],
 ];
 
 // Set the language
