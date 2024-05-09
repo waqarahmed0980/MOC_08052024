@@ -1,16 +1,13 @@
 <?php
 
-
 // Set CORS headers
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-
 define("NOTIFICATIONS_FILE", "notifications.json");
 
 require 'vendor/autoload.php';
-
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -24,9 +21,10 @@ $currentTimestamp = time();
 // Format the timestamp as per the specified format
 $qatarTime = date("d M Y h:i A", $currentTimestamp);
 
+// Load notifications from file
 $notifications = json_decode(file_get_contents(NOTIFICATIONS_FILE), true) ?: [];
 
-
+// Function to send an email
 function sendEmail($to, $subject, $body, $cc = "", $bcc = "") {
     $mail = new PHPMailer(true);
     try {
@@ -61,6 +59,7 @@ function sendEmail($to, $subject, $body, $cc = "", $bcc = "") {
     }
 }
 
+// Function to format email content in English
 function formatEmailEn($fullName, $bookTitle, $author) {
     return <<<HTML
     <html>
@@ -86,6 +85,7 @@ function formatEmailEn($fullName, $bookTitle, $author) {
 HTML;
 }
 
+// Function to format email content in Arabic
 function formatEmailAr($fullName, $bookTitle, $author) {
     return <<<HTML
     <html>
@@ -111,6 +111,7 @@ function formatEmailAr($fullName, $bookTitle, $author) {
 HTML;
 }
 
+// Function to format admin email content in English
 function formatEmailAdminEn($fullName, $bookTitle, $author) {
     return <<<HTML
     <html>
@@ -137,6 +138,7 @@ function formatEmailAdminEn($fullName, $bookTitle, $author) {
 HTML;
 }
 
+// Function to format admin email content in Arabic
 function formatEmailAdminAr($fullName, $bookTitle, $author) {
     return <<<HTML
     <html>
@@ -163,9 +165,8 @@ function formatEmailAdminAr($fullName, $bookTitle, $author) {
 HTML;
 }
 
-
-
-    function sendSMS($phone, $message) {
+// Function to send SMS using Ooredoo Qatar messaging API
+function sendSMS($phone, $message) {
     $url = "http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
     $params = [
         'customerID' => '1465',
@@ -193,20 +194,10 @@ HTML;
     }
     curl_close($ch);
     return $response;
-    }
+}
 
-
-
-    $networkDetails = getNetworkDetails();
-    $logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse) . "<br><br>Network Details:<br>" . $networkDetails;
-    sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
-    // Pass logs to JavaScript
-    echo "<script>console.log('SMS Response: " . addslashes($smsResponse) . "');</script>";
-    echo "<script>console.log('Network Details: " . addslashes($networkDetails) . "');</script>";
-
-
-
-    function getNetworkDetails() {
+// Function to get network details
+function getNetworkDetails() {
     $ip = $_SERVER['SERVER_ADDR'];
     $host = gethostname();
     $dns = dns_get_record($host, DNS_A);
@@ -219,14 +210,8 @@ HTML;
     return $details;
 }
 
-
-
-
-
-
-
+// Process POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $fullName = htmlspecialchars($_POST['fullName']);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $phone = htmlspecialchars($_POST['phone']);
@@ -237,6 +222,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lang = ($_POST['lang']);
     $adminEmail = "MocBookPrintOpr@moc.gov.qa";
     $bcc = ["waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com"];
+    
+    // Send confirmation emails based on language
     if ($lang === 'en') {
         $subject = "Book Request Confirmation";
         $userMessage = formatEmailEn($fullName, $bookTitle, $author);
@@ -253,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         sendEmail($adminEmail, $subject, $adminMessage, "", implode(',', $bcc));
     }
     
-// Save notification
+    // Save notification
     $newNotification = [
         "id" => count($notifications) + 1,
         "name" => $fullName,
@@ -268,18 +255,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $notifications[] = $newNotification;
     file_put_contents(NOTIFICATIONS_FILE, json_encode($notifications, JSON_PRETTY_PRINT));
-
- // SMS sending
-    $messageEn = "Thank you, for book printing request. It is being processed.";
-    $messageAr = "شكرًا لك، على طلب طباعة الكتاب. يتم معالجته.";
-    if ($lang == "en") {
-        $smsResponse = sendSMS($phone, $messageEn);
-    } else {
-        $smsResponse = sendSMS($phone, $messageAr);
-    }    
+    
+    // Send SMS
+    $messageEn = "Thank you for your book printing request. It is being processed.";
+    $messageAr = "شكرا لك على طلبك لطباعة الكتاب. يتم المعالجة الآن.";
+    $smsResponse = ($lang == "en") ? sendSMS($phone, $messageEn) : sendSMS($phone, $messageAr);
 }
 
-    
+// Get network details
+$networkDetails = getNetworkDetails();
+
+// Log SMS response
+$logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse) . "<br><br>Network Details:<br>" . $networkDetails;
+sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
+
+// Pass logs to JavaScript
+echo "<script>console.log('SMS Response: " . addslashes($smsResponse) . "');</script>";
+echo "<script>console.log('Network Details: " . addslashes($networkDetails) . "');</script>";
+
 ?>
 
 <!DOCTYPE html>
