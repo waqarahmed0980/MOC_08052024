@@ -346,7 +346,7 @@ $books = [
 
     <script>
 function sendSMS() {
-    const url = 'https://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms?customerID=1465&userName=qauthor&userPassword=sT@4147uiy&originator=MOC&smsText=testsms&recipientPhone=%2B97450954184&messageType=ArabicWithLatinNumbers&defDate=&blink=false&flash=false&Private=false';
+    const url = 'http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms?customerID=1465&userName=qauthor&userPassword=sT@4147uiy&originator=MOC&smsText=testsms&recipientPhone=%2B97450954184&messageType=ArabicWithLatinNumbers&defDate=&blink=false&flash=false&Private=false';
 
     fetch(url)
         .then(response => response.text())
