@@ -174,12 +174,12 @@ $books = [
 
         .card-title
         {
-            height: 3em;
+            height: 2.8em;
         }
 
         .card-text
         {
-            height: 3em;
+            height: 2.8em;
         }
 
         .btn-select
