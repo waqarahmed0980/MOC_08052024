@@ -16,7 +16,8 @@ $currentTimestamp = time();
 // Format the timestamp as per the specified format
 $qatarTime = date("d M Y h:i A", $currentTimestamp);
 
-$notifications = file_exists(NOTIFICATIONS_FILE) ? json_decode(file_get_contents(NOTIFICATIONS_FILE), true) : [];
+$notifications = json_decode(file_get_contents(NOTIFICATIONS_FILE), true) ?: [];
+
 
 function sendEmail($to, $subject, $body, $cc = "", $bcc = "") {
     $mail = new PHPMailer(true);
@@ -58,7 +59,7 @@ function formatEmail($fullName, $bookTitle, $author) {
     <head>
     <title>Notification</title>
     <style>
-        body { font-family: 'Arial', sans-serif; direction: rtl; text-align: right; }
+        body { font-family: sans-serif; direction: rtl; text-align: right; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 8px; }
         th { background-color: #f2f2f2; }
@@ -84,14 +85,14 @@ function formatEmailAdmin($bookTitle, $author) {
     <head>
     <title>Notification</title>
     <style>
-        body { font-family: 'Arial', sans-serif; direction: rtl; text-align: right; }
+        body { font-family: sans-serif; direction: rtl; text-align: right; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 8px; }
         th { background-color: #f2f2f2; }
     </style>
     </head>
     <body>
-    <p>User has requested for book printing.</p>
+    <p>User has requested Book Printing.</p>
     <p>Below are the details of the book requested:</p>
     <table>
         <tr><th>Book Title</th><td>{$bookTitle}</td></tr>
@@ -101,6 +102,32 @@ function formatEmailAdmin($bookTitle, $author) {
     </body>
     </html>
 HTML;
+}
+
+
+
+function sendSMS($phone, $message) {
+    $url = "http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
+    $params = http_build_query([
+        'customerID' => '1465',
+        'userName' => 'qauthor',
+        'userPassword' => 'sT@4147uiy',
+        'originator' => 'MOC',
+        'smsText' => $message,
+        'recipientPhone' => $phone,
+        'messageType' => 'ArabicWithLatinNumbers',
+        'defDate' => '',
+        'blink' => 'false',
+        'flash' => 'false',
+        'Private' => 'false'
+    ]);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url . '?' . $params);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return $response;
 }
 
 
@@ -114,25 +141,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $downloadUrl = filter_var($_POST['download_url'], FILTER_SANITIZE_URL);
     $bookCode = htmlspecialchars($_POST['bookCode']);
 
-    $adminEmail = "mocbookprint@moc.gov.qa";
-    $ccEmails = "nalrahmany@moc.gov.qa,hnasr@moc.gov.qa,ashaikha@moc.gov.qa";
-    $bccEmails = "wqahmed705@gmail.com,waqar.ahmed@qdsnet.com";
-
-    // $adminEmail = "mocbookprint@moc.gov.qa";
-    // $ccEmails = "nalrahmany@moc.gov.qa,hnasr@moc.gov.qa,ashaikha@moc.gov.qa";
-    // $bccEmails = "wqahmed705@gmail.com,waqar.ahmed@qdsnet.com";
+    $adminEmail = "MocBookPrintOpr@moc.gov.qa";
+    $bcc = ["waqar.ahmed@qdsnet.com" , "syed.nabeel@qdsnet.com"];
 
     $userMessage = formatEmail($fullName, $bookTitle, $author);
-    $userSuccess = sendEmail($email, "Book Request Confirmation", $userMessage);
+    sendEmail($email, "Book Request Confirmation", $userMessage);
 
     $adminMessage = formatEmailAdmin($bookTitle, $author);
-    $adminSuccess = sendEmail($adminEmail, "New Book Request Received", $adminMessage, $ccEmails, $bccEmails);
+    sendEmail($adminEmail, "New Book Request Received", $adminMessage);
 
-    // Send SMS and trigger email with response
-    $smsResponse = sendSMS($phone, "Thank you, {$fullName}, for your request '{$bookTitle}'. It is being processed.");
-
-    // Load existing notifications
-    $notifications = json_decode(file_get_contents(NOTIFICATIONS_FILE), true) ?: [];
+// Save notification
     $newNotification = [
         "id" => count($notifications) + 1,
         "name" => $fullName,
@@ -142,41 +160,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         "title" => $bookTitle,
         "author" => $author,
         "download_url" => $downloadUrl,
-        "timestamp" => $qatarTime,
-        "smslog" => $smsResponse
-
+        "timestamp" => $qatarTime
     ];
 
     $notifications[] = $newNotification;
     file_put_contents(NOTIFICATIONS_FILE, json_encode($notifications, JSON_PRETTY_PRINT));
 
-
-    function sendSMS($phone, $message) {
-        $url = "http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
-        $params = http_build_query([
-            'customerID' => '1465',
-            'userName' => 'qauthor',
-            'userPassword' => 'sT@4147uiy',
-            'originator' => 'MOC',
-            'smsText' => $message,
-            'recipientPhone' => $phone,
-            'messageType' => 'ArabicWithLatinNumbers',
-            'defDate' => '',
-            'blink' => 'false',
-            'flash' => 'false',
-            'Private' => 'false'
-        ]);
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url . '?' . $params);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        return $response;
+     // Send SMS
+     $smsResponse = sendSMS($phone, "Thank you, {$fullName}, for your request '{$bookTitle}'. It is being processed.");
+        if (!$smsResponse) {
+            $logMessage = "Dear Developer,<br>Please check the following log:<br>" . $smsResponse ;
+            sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage) ;
+        }
     }
 
 
-}
 
 
 ?>
@@ -272,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             paging: true,
             searching: true,
             ordering: true,
-            order: [0, 'desc'],
+            order: [0, 'asc'],
             pageLength: 10,
             lengthMenu: [10, 25, 50, 100],
             dom: 'Bfrtip',
