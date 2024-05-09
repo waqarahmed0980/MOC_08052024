@@ -258,9 +258,6 @@ $books = [
         </div>
     </div>
 
-  <!-- For Test -->
-    <button class="btn-send-sms" onclick="sendSMS()">Send SMS</button>
-
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -343,24 +340,6 @@ $books = [
             });
         });
     </script>
-
-    <script>
-function sendSMS() {
-    const url = 'http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms?customerID=1465&userName=qauthor&userPassword=sT@4147uiy&originator=MOC&smsText=testsms&recipientPhone=%2B97450954184&messageType=ArabicWithLatinNumbers&defDate=&blink=false&flash=false&Private=false';
-
-    fetch(url)
-        .then(response => response.text())
-        .then(data => {
-            console.log('SMS API Response:', data);
-            alert('SMS Sent Successfully!');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to Send SMS.');
-        });
-}
-</script>
-
 
 </body>
 </html>
