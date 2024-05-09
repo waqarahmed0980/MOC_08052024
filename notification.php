@@ -40,12 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prefix = '+974';
     $phone_with_prefix = $prefix . $phone;
 
-    // Define admin email and BCC recipients
-    // $adminEmail = "MocBookPrintOpr@moc.gov.qa";
-    // $bcc = ["waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com"];
-
-    $adminEmail = "misbanabeel@gmail.com";
-    $bcc = ["syednabeeljavedzaidi@gmail.com", "syed.nabeel@qdsnet.com"];
+    //Define admin email and BCC recipients
+    
+    $adminEmail = "MocBookPrintOpr@moc.gov.qa";
+    $bcc = ["waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com"];
 
     // Send confirmation emails based on language
     if ($lang === 'en') {
