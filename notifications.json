@@ -1,0 +1,24 @@
+[
+    {
+        "id": 1,
+        "name": "Adnan Khan",
+        "email": "aakhan19@hotmail.com",
+        "phone": "1234567",
+        "file_no": "Book-1",
+        "title": "Metropolis of Culture",
+        "author": "Civilization Scholars",
+        "download_url": "downloads\/book-1.pdf",
+        "timestamp": "08 May 2024 - 08:50 PM"
+    },
+    {
+        "id": 2,
+        "name": "Syed Nabeel",
+        "email": "syednabeeljavedzaidi@gmail.com",
+        "phone": "+923452335376",
+        "file_no": "Book-3",
+        "title": "Pearls of the Gulf",
+        "author": "Khaled Abdullah Abdul Aziz Ziara",
+        "download_url": "downloads\/book-3.pdf",
+        "timestamp": "09 May 2024 12:43 PM"
+    }
+]
