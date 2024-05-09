@@ -79,7 +79,7 @@ HTML;
 }
 
 
-function formatEmailAdmin($fullName, $bookTitle, $author) {
+function formatEmailAdmin($bookTitle, $author) {
     return <<<HTML
     <html>
     <head>
@@ -97,7 +97,6 @@ function formatEmailAdmin($fullName, $bookTitle, $author) {
     <table>
         <tr><th>Book Title</th><td>{$bookTitle}</td></tr>
         <tr><th>Author</th><td>{$author}</td></tr>
-        <tr><th>Requestor</th><td>{$fullName}</td></tr>
     </table>
     <p>Thanks,<br>MOC Book Printing Admin</p>
     </body>
