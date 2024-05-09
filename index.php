@@ -314,7 +314,7 @@ $books = [
             e.preventDefault();
             const formData = $(this).serialize();
             $('#exampleModal').modal('hide');
-
+            $('#submission-form').trigger("reset");
             $.ajax({
                 url: 'notification.php',
                 type: 'POST',
@@ -335,7 +335,6 @@ $books = [
                         timeOut: 5000,
                         extendedTimeOut: 1000,
                     });
-                    $('#submission-form').trigger("reset");
                 }
             });
         });
