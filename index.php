@@ -180,6 +180,15 @@ $books = [
         .btn-select {
             margin-top: auto;
         }
+          /* In RTL mode */
+[dir="rtl"] .form-control {
+    border-radius: 0.25rem 0 0 0.25rem; /* Adjust border radius */
+}
+
+[dir="rtl"] .input-group-prepend,
+[dir="rtl"] .input-group-text {
+    border-radius: 0 0.25rem 0.25rem 0; /* Adjust border radius */
+}
     </style>
 
         <?php if ($lang === 'ar'): ?>
@@ -284,16 +293,15 @@ $books = [
                             <label for="email"><?php echo $strings["uemail"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
                             <input type="email" required="required" class="form-control" id="email" name="email" required>
                         </div>
-                       <div class="form-group">
-                           
-    <label for="phone"><?php echo $strings["uphone"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
-    <div class="input-group">
-        <div class="input-group-prepend">
-            <div class="input-group-text pl-2 pr-2">+974</div> <!-- Prefix -->
-        </div>
-        <input type="tel" class="form-control" id="phone" name="phone" required>
-    </div>
-</div>
+                       <div class="form-group">   
+                        <label for="phone"><?php echo $strings["uphone"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text pl-2 pr-2">+974</div> <!-- Prefix -->
+                                </div>
+                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                            </div>
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo $strings["close_btn"][$lang]; ?></button>
                             <button type="submit" class="btn btn-primary"><?php echo $strings["submit_btn"][$lang]; ?></button>
