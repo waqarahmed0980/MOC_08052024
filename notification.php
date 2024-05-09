@@ -158,7 +158,7 @@ HTML;
 
 
 function sendSMS($phone, $message) {
-    $url = "https://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
+    $url = "http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
     $params = [
         'customerID' => '1465',
         'userName' => 'qauthor',
@@ -167,7 +167,7 @@ function sendSMS($phone, $message) {
         'smsText' => $message,
         'recipientPhone' => $phone,
         'messageType' => 'ArabicWithLatinNumbers',
-        'defDate' => date('Y-m-d H:i:s'),
+        'defDate' => '',
         'blink' => 'false',
         'flash' => 'false',
         'Private' => 'false'
@@ -188,6 +188,18 @@ function sendSMS($phone, $message) {
     return $response;
 }
 
+function getNetworkDetails() {
+    $ip = $_SERVER['SERVER_ADDR'];
+    $host = gethostname();
+    $dns = dns_get_record($host, DNS_A);
+    $details = "Server IP: $ip<br>Hostname: $host<br>DNS Records:<br>";
+
+    foreach ($dns as $record) {
+        $details .= "Host: {$record['host']} - IP: {$record['ip']}<br>";
+    }
+
+    return $details;
+}
 
 function getNetworkDetails() {
     $ip = $_SERVER['SERVER_ADDR'];
@@ -201,6 +213,7 @@ function getNetworkDetails() {
 
     return $details;
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -260,10 +273,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $smsResponse = sendSMS($phone, $messageAr);
     }
 
-    $logMessage = "Dear Developer,<br>Please check the following log:<br>" . $smsResponse;
+    $networkDetails = getNetworkDetails();
+    $logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse) . "<br><br>Network Details:<br>" . $networkDetails;
     sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
-    }
 
+    // Pass logs to JavaScript
+    echo "<script>console.log('SMS Response: " . addslashes($smsResponse) . "');</script>";
+    echo "<script>console.log('Network Details: " . addslashes($networkDetails) . "');</script>";
+}
+    
 ?>
 
 <!DOCTYPE html>
