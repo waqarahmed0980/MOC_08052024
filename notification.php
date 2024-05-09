@@ -5,12 +5,13 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
+// Define notifications file path
 define("NOTIFICATIONS_FILE", "notifications.json");
 
-require 'vendor/autoload.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+// Include required files
+require_once 'email-sender.php';
+require_once 'email-formatting.php';
+require_once 'send-sms.php';
 
 // Set the default time zone to Qatar
 date_default_timezone_set('Asia/Qatar');
@@ -24,180 +25,10 @@ $qatarTime = date("d M Y h:i A", $currentTimestamp);
 // Load notifications from file
 $notifications = json_decode(file_get_contents(NOTIFICATIONS_FILE), true) ?: [];
 
-// Function to send an email
-function sendEmail($to, $subject, $body, $cc = "", $bcc = "") {
-    $mail = new PHPMailer(true);
-    try {
-        $mail->isSMTP();
-        $mail->CharSet = 'UTF-8';  // Support for Unicode characters
-        $mail->Host       = 'smtp.office365.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'MocBookPrint@moc.gov.qa';
-        $mail->Password   = '@mMoBoPri@@345#$%';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-        $mail->setFrom('MocBookPrint@moc.gov.qa', 'MOC Book Printing');
-        $mail->addAddress($to);
-        if (!empty($cc)) {
-            foreach (explode(',', $cc) as $ccEmail) {
-                $mail->addCC(trim($ccEmail));
-            }
-        }
-        if (!empty($bcc)) {
-            foreach (explode(',', $bcc) as $bccEmail) {
-                $mail->addBCC(trim($bccEmail));
-            }
-        }
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body = $body;
-        $mail->send();
-        return true;
-    } catch (Exception $e) {
-        error_log("Mail send failed: " . $e->getMessage());
-        return false;
-    }
-}
-
-// Function to format email content in English
-function formatEmailEn($fullName, $bookTitle, $author) {
-    return <<<HTML
-    <html>
-    <head>
-    <title>Notification</title>
-    <style>
-        body { font-family: sans-serif; direction: ltr; text-align: left; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
-    </style>
-    </head>
-    <body>
-    <p>Dear {$fullName},</p>
-    <p>Below are the details of the requested book </p>
-    <table>
-        <tr><th>Book Title</th><td>{$bookTitle}</td></tr>
-        <tr><th>Author</th><td>{$author}</td></tr>
-    </table>
-    <p>Thanks,<br>MOC Book Printing Admin</p>
-    </body>
-    </html>
-HTML;
-}
-
-// Function to format email content in Arabic
-function formatEmailAr($fullName, $bookTitle, $author) {
-    return <<<HTML
-    <html>
-    <head>
-    <title>إشعار</title>
-    <style>
-        body { font-family: sans-serif; direction: rtl; text-align: right; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
-    </style>
-    </head>
-    <body>
-    <p>السيد/ السيدة {$fullName},</p>
-    <p>تم إرسال الكتاب للطباعة، تفاصيل الكتاب:</p>
-    <table>
-        <tr><th>عنوان الكتاب</th><td>{$bookTitle}</td></tr>
-        <tr><th>اسم المؤلف</th><td>{$author}</td></tr>
-    </table>
-    <p>شكرًا,<br>شكرا لاستخدامكم خدمة طباعة الكتب</p>
-    </body>
-    </html>
-HTML;
-}
-
-// Function to format admin email content in English
-function formatEmailAdminEn($fullName, $bookTitle, $author) {
-    return <<<HTML
-    <html>
-    <head>
-    <title>Notification</title>
-    <style>
-        body { font-family: sans-serif; direction: ltr; text-align: left; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
-    </style>
-    </head>
-    <body>
-    <p>User has requested Book Printing.</p>
-    <p>Below are the details of the book requested:</p>
-    <table>
-        <tr><th>Book Title</th><td>{$bookTitle}</td></tr>
-        <tr><th>Author</th><td>{$author}</td></tr>
-        <tr><th>Requested by</th><td>{$fullName}</td></tr>
-    </table>
-    <p>Thanks,<br>MOC Book Printing Admin</p>
-    </body>
-    </html>
-HTML;
-}
-
-// Function to format admin email content in Arabic
-function formatEmailAdminAr($fullName, $bookTitle, $author) {
-    return <<<HTML
-    <html>
-    <head>
-    <title>إشعار</title>
-    <style>
-        body { font-family: sans-serif; direction: rtl; text-align: right; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
-    </style>
-    </head>
-    <body>
-    <p>لقد طلب المستخدم طباعة الكتاب.</p>
-    <p>وفيما يلي تفاصيل الكتاب المطلوب:</p>
-    <table>
-        <tr><th> عنوان الكتاب </th><td>{$bookTitle}</td></tr>
-        <tr><th> اسم المؤلف </th><td>{$author}</td></tr>
-        <tr><th> بتوصية من </th><td>{$fullName}</td></tr>
-    </table>
-    <p>شكرًا,<br>إدارة طباعة الكتب – وزارة الثقافة</p>
-    </body>
-    </html>
-HTML;
-}
-
-// Function to send SMS using Ooredoo Qatar messaging API
-function sendSMS($phone_with_prefix, $message) {
-    $url = "https://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
-    $params = [
-        'customerID' => '1465',
-        'userName' => 'qauthor',
-        'userPassword' => 'sT@4147uiy',
-        'originator' => 'MOC',
-        'smsText' => $message,
-        'recipientPhone' => $phone_with_prefix,
-        'messageType' => 'ArabicWithLatinNumbers',
-        'defDate' => date('YmdHis'),
-        'blink' => 'false',
-        'flash' => 'false',
-        'Private' => 'false'
-    ];
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($params));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HEADER, true); // Include header in output
-    curl_setopt($ch, CURLOPT_VERBOSE, true); // Enable verbose output
-    $response = curl_exec($ch);
-
-    if (curl_errno($ch)) {
-        $response = 'Error:' . curl_error($ch);
-    }
-    curl_close($ch);
-    return $response;
-}
 
 // Process POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Sanitize and validate input data
     $fullName = htmlspecialchars($_POST['fullName']);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $bookTitle = htmlspecialchars($_POST['book_title']);
@@ -208,28 +39,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = htmlspecialchars($_POST['phone']);
     $prefix = '+974';
     $phone_with_prefix = $prefix . $phone;
-    
-    $adminEmail = "MocBookPrintOpr@moc.gov.qa";
-    $bcc = ["waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com"];
-    
+
+    // Define admin email and BCC recipients
+    // $adminEmail = "MocBookPrintOpr@moc.gov.qa";
+    // $bcc = ["waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com"];
+
+    $adminEmail = "misbanabeel@gmail.com";
+    $bcc = ["syednabeeljavedzaidi@gmail.com", "syed.nabeel@qdsnet.com"];
+
     // Send confirmation emails based on language
     if ($lang === 'en') {
         $subject = "Book Request Confirmation";
         $userMessage = formatEmailEn($fullName, $bookTitle, $author);
         sendEmail($email, $subject, $userMessage);
         $adminMessage = formatEmailAdminEn($fullName, $bookTitle, $author);
-        $subject = "New Book Request Received";
-        sendEmail($adminEmail, $subject, $adminMessage, "", implode(',', $bcc));
     } elseif ($lang === 'ar') {
-        $userMessage = formatEmailAr($fullName, $bookTitle, $author);
         $subject = "تأكيد طلب الكتاب";
+        $userMessage = formatEmailAr($fullName, $bookTitle, $author);
         sendEmail($email, $subject, $userMessage);
         $adminMessage = formatEmailAdminAr($fullName, $bookTitle, $author);
-        $subject = "تم استلام طلب كتاب جديد";
-        sendEmail($adminEmail, $subject, $adminMessage, "", implode(',', $bcc));
     }
-    
-    // Save notification
+
+    // Send admin notification email
+    $subject = ($lang === 'en') ? "New Book Request Received" : "تم استلام طلب كتاب جديد";
+    sendEmail($adminEmail, $subject, $adminMessage, "", implode(',', $bcc));
+
+    // Save notification to file
     $newNotification = [
         "id" => count($notifications) + 1,
         "name" => $fullName,
@@ -241,37 +76,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         "download_url" => $downloadUrl,
         "timestamp" => $qatarTime
     ];
-
     $notifications[] = $newNotification;
     file_put_contents(NOTIFICATIONS_FILE, json_encode($notifications, JSON_PRETTY_PRINT));
-    
-   // Send SMS
+
+     // Determine message based on language
     $messageEn = "Thank you for your book printing request. It is being processed.";
     $messageAr = "شكرا لك على طلبك لطباعة الكتاب. يتم المعالجة الآن.";
     $smsResponse = ($lang == "en") ? sendSMS($phone_with_prefix, $messageEn) : sendSMS($phone_with_prefix, $messageAr);
-}
 
+    // Log SMS response
+    $logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse);
+    sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
 
+    // Pass logs to JavaScript
+    echo "<script>console.log('SMS Response: " . addslashes($smsResponse) . "');</script>";
 
-// Attempt to send SMS
-if ($lang === 'en') {
-    $smsResponse = sendSMS($phone_with_prefix, $messageEn);
-} else {
-    $smsResponse = sendSMS($phone_with_prefix, $messageAr);
-}
-
-// Log SMS response
-$logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse);
-sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
-
-// Pass logs to JavaScript
-echo "<script>console.log('SMS Response: " . addslashes($smsResponse) . "');</script>";
-
-// Display response message to the user
-if (strpos($smsResponse, 'Error') === 0) {
-    echo "<p>Failed to send SMS: $smsResponse</p>";
-} else {
-    echo "<p>SMS sent successfully!</p>";
+    // Display response message to the user
+    if (strpos($smsResponse, 'Error') === 0) {
+        echo "<p>Failed to send SMS: $smsResponse</p>";
+    } else {
+        echo "<p>SMS sent successfully!</p>";
+    }
 }
 
 ?>
@@ -367,8 +192,8 @@ if (strpos($smsResponse, 'Error') === 0) {
             paging: true,
             searching: true,
             ordering: true,
-            order: [0, 'asc'],
-            pageLength: 10,
+            order: [0, 'DESC'],
+            pageLength: 20,
             lengthMenu: [10, 25, 50, 100],
             dom: 'Bfrtip',
             buttons: [
@@ -413,7 +238,7 @@ if (strpos($smsResponse, 'Error') === 0) {
         // Reload page every 10 seconds
         setTimeout(function(){
             window.location.reload();
-        }, 60000);
+        }, 10000);
     });
 </script>
 
