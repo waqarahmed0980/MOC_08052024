@@ -401,7 +401,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Reload page every 10 seconds
         setTimeout(function(){
             window.location.reload();
-        }, 10000);
+        }, 60000);
     });
 </script>
 
