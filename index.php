@@ -171,19 +171,13 @@ $books = [
             right: 12px;
             display: none !important;
         }
-
-        .card-title
-        {
+        .card-title {
             height: 2.8em;
         }
-
-        .card-text
-        {
+        .card-text {
             height: 2.8em;
         }
-
-        .btn-select
-        {
+        .btn-select {
             margin-top: auto;
         }
     </style>
@@ -192,8 +186,8 @@ $books = [
     <style>
         @font-face {
             font-family: 'QatarFont';
-            src: url('QatarFont-Regular.woff2') format('woff2'),
-                 url('QatarFont-Regular.woff') format('woff');
+            src: url('font/QatarFont-Regular.woff2') format('woff2'),
+                 url('font/QatarFont-Regular.woff') format('woff');
             font-weight: normal;
             font-style: normal;
         }
