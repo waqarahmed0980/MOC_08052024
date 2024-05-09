@@ -176,13 +176,31 @@ function sendSMS($phone, $message) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($params));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, true); // Include header in output
+    curl_setopt($ch, CURLOPT_VERBOSE, true); // Enable verbose output
     $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        $response = 'Error:' . curl_error($ch);
+    }
+
     curl_close($ch);
     return $response;
 }
 
 
+function getNetworkDetails() {
+    $ip = $_SERVER['SERVER_ADDR'];
+    $host = gethostname();
+    $dns = dns_get_record($host, DNS_A);
+    $details = "Server IP: $ip<br>Hostname: $host<br>DNS Records:<br>";
 
+    foreach ($dns as $record) {
+        $details .= "Host: {$record['host']} - IP: {$record['ip']}<br>";
+    }
+
+    return $details;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
