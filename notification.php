@@ -157,6 +157,67 @@ HTML;
 }
 
 
+
+    function sendSMS($phone, $message) {
+    $url = "http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
+    $params = [
+        'customerID' => '1465',
+        'userName' => 'qauthor',
+        'userPassword' => 'sT@4147uiy',
+        'originator' => 'MOC',
+        'smsText' => $message,
+        'recipientPhone' => $phone,
+        'messageType' => 'ArabicWithLatinNumbers',
+        'defDate' => date('YmdHis'),
+        'blink' => 'false',
+        'flash' => 'false',
+        'Private' => 'false'
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($params));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HEADER, true); // Include header in output
+    curl_setopt($ch, CURLOPT_VERBOSE, true); // Enable verbose output
+    $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        $response = 'Error:' . curl_error($ch);
+    }
+    curl_close($ch);
+    return $response;
+    }
+
+
+
+    $networkDetails = getNetworkDetails();
+    $logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse) . "<br><br>Network Details:<br>" . $networkDetails;
+    sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
+    // Pass logs to JavaScript
+    echo "<script>console.log('SMS Response: " . addslashes($smsResponse) . "');</script>";
+    echo "<script>console.log('Network Details: " . addslashes($networkDetails) . "');</script>";
+
+
+
+    function getNetworkDetails() {
+    $ip = $_SERVER['SERVER_ADDR'];
+    $host = gethostname();
+    $dns = dns_get_record($host, DNS_A);
+    $details = "Server IP: $ip<br>Hostname: $host<br>DNS Records:<br>";
+
+    foreach ($dns as $record) {
+        $details .= "Host: {$record['host']} - IP: {$record['ip']}<br>";
+    }
+
+    return $details;
+}
+
+
+
+
+
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $fullName = htmlspecialchars($_POST['fullName']);
@@ -208,57 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $smsResponse = sendSMS($phone, $messageEn);
     } else {
         $smsResponse = sendSMS($phone, $messageAr);
-    }
-    $networkDetails = getNetworkDetails();
-    $logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse) . "<br><br>Network Details:<br>" . $networkDetails;
-    sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
-    // Pass logs to JavaScript
-    echo "<script>console.log('SMS Response: " . addslashes($smsResponse) . "');</script>";
-    echo "<script>console.log('Network Details: " . addslashes($networkDetails) . "');</script>";
-
-    function sendSMS($phone, $message) {
-    $url = "https://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
-    $params = [
-        'customerID' => '1465',
-        'userName' => 'qauthor',
-        'userPassword' => 'sT@4147uiy',
-        'originator' => 'MOC',
-        'smsText' => $message,
-        'recipientPhone' => $phone,
-        'messageType' => 'ArabicWithLatinNumbers',
-        'defDate' => date('YmdHis'),
-        'blink' => 'false',
-        'flash' => 'false',
-        'Private' => 'false'
-    ];
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($params));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HEADER, true); // Include header in output
-    curl_setopt($ch, CURLOPT_VERBOSE, true); // Enable verbose output
-    $response = curl_exec($ch);
-
-    if (curl_errno($ch)) {
-        $response = 'Error:' . curl_error($ch);
-    }
-    curl_close($ch);
-    return $response;
-    }
-
-    function getNetworkDetails() {
-    $ip = $_SERVER['SERVER_ADDR'];
-    $host = gethostname();
-    $dns = dns_get_record($host, DNS_A);
-    $details = "Server IP: $ip<br>Hostname: $host<br>DNS Records:<br>";
-
-    foreach ($dns as $record) {
-        $details .= "Host: {$record['host']} - IP: {$record['ip']}<br>";
-    }
-
-    return $details;
-}
-    
+    }    
 }
 
     
