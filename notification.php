@@ -167,7 +167,7 @@ HTML;
 
 // Function to send SMS using Ooredoo Qatar messaging API
 function sendSMS($phone, $message) {
-    $url = "http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
+    $url = "https://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
     $params = [
         'customerID' => '1465',
         'userName' => 'qauthor',
