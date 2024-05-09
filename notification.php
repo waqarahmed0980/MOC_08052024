@@ -166,7 +166,7 @@ HTML;
 }
 
 // Function to send SMS using Ooredoo Qatar messaging API
-function sendSMS($phone, $message) {
+function sendSMS($phone_with_prefix, $message) {
     $url = "https://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
     $params = [
         'customerID' => '1465',
@@ -196,30 +196,19 @@ function sendSMS($phone, $message) {
     return $response;
 }
 
-// Function to get network details
-function getNetworkDetails() {
-    $ip = $_SERVER['SERVER_ADDR'];
-    $host = gethostname();
-    $dns = dns_get_record($host, DNS_A);
-    $details = "Server IP: $ip<br>Hostname: $host<br>DNS Records:<br>";
-
-    foreach ($dns as $record) {
-        $details .= "Host: {$record['host']} - IP: {$record['ip']}<br>";
-    }
-
-    return $details;
-}
-
 // Process POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullName = htmlspecialchars($_POST['fullName']);
     $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $phone = htmlspecialchars($_POST['phone']);
     $bookTitle = htmlspecialchars($_POST['book_title']);
     $author = htmlspecialchars($_POST['author']);
     $downloadUrl = filter_var($_POST['download_url'], FILTER_SANITIZE_URL);
     $bookCode = htmlspecialchars($_POST['bookCode']);
     $lang = ($_POST['lang']);
+    $phone = htmlspecialchars($_POST['phone']);
+    $prefix = '+974';
+    $phone_with_prefix = $prefix . $phone;
+    
     $adminEmail = "MocBookPrintOpr@moc.gov.qa";
     $bcc = ["waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com"];
     
@@ -256,22 +245,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $notifications[] = $newNotification;
     file_put_contents(NOTIFICATIONS_FILE, json_encode($notifications, JSON_PRETTY_PRINT));
     
-    // Send SMS
+   // Send SMS
     $messageEn = "Thank you for your book printing request. It is being processed.";
     $messageAr = "شكرا لك على طلبك لطباعة الكتاب. يتم المعالجة الآن.";
-    $smsResponse = ($lang == "en") ? sendSMS($phone, $messageEn) : sendSMS($phone, $messageAr);
+    $smsResponse = ($lang == "en") ? sendSMS($phone_with_prefix, $messageEn) : sendSMS($phone_with_prefix, $messageAr);
 }
 
-// Get network details
-$networkDetails = getNetworkDetails();
+
+
+// Attempt to send SMS
+if ($lang === 'en') {
+    $smsResponse = sendSMS($phone_with_prefix, $messageEn);
+} else {
+    $smsResponse = sendSMS($phone_with_prefix, $messageAr);
+}
 
 // Log SMS response
-$logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse) . "<br><br>Network Details:<br>" . $networkDetails;
+$logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse);
 sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
 
 // Pass logs to JavaScript
 echo "<script>console.log('SMS Response: " . addslashes($smsResponse) . "');</script>";
-echo "<script>console.log('Network Details: " . addslashes($networkDetails) . "');</script>";
+
+// Display response message to the user
+if (strpos($smsResponse, 'Error') === 0) {
+    echo "<p>Failed to send SMS: $smsResponse</p>";
+} else {
+    echo "<p>SMS sent successfully!</p>";
+}
 
 ?>
 
