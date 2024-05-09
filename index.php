@@ -171,6 +171,21 @@ $books = [
             right: 12px;
             display: none !important;
         }
+
+        .card-title
+        {
+            height: 3em;
+        }
+
+        .card-text
+        {
+            height: 3em;
+        }
+
+        .btn-select
+        {
+            margin-top: auto;
+        }
     </style>
 
         <?php if ($lang === 'ar'): ?>
