@@ -79,7 +79,7 @@ HTML;
 }
 
 
-function formatEmailAdmin($bookTitle, $author) {
+function formatEmailAdmin($fullName, $bookTitle, $author) {
     return <<<HTML
     <html>
     <head>
