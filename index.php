@@ -177,8 +177,8 @@ $books = [
     <style>
         @font-face {
             font-family: 'QatarFont';
-            src: url('font/QatarFont-Regular.woff2') format('woff2'),
-                 url('font/QatarFont-Regular.woff') format('woff');
+            src: url('QatarFont-Regular.woff2') format('woff2'),
+                 url('QatarFont-Regular.woff') format('woff');
             font-weight: normal;
             font-style: normal;
         }
