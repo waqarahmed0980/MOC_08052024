@@ -275,6 +275,7 @@ $books = [
                         <input  type="hidden" name="author" id="author">
                         <input  type="hidden" name="download_url" id="download_url">
                         <input  type="hidden" name="bookCode" id="bookCode">
+                        <input  type="hidden" name="lang" id="lang" value="<?php echo $lang; ?>">
                         <div class="form-group">
                             <label for="fullName"><?php echo $strings["uname"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
                             <input type="text" required="required" class="form-control" id="fullName" name="fullName" required>
