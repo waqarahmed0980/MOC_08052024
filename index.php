@@ -284,10 +284,16 @@ $books = [
                             <label for="email"><?php echo $strings["uemail"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
                             <input type="email" required="required" class="form-control" id="email" name="email" required>
                         </div>
-                        <div class="form-group">
-                         <label for="phone"><?php echo $strings["uphone"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
-                            <input type="tel" class="form-control" id="phone" name="phone" required>
-                        </div>
+                       <div class="form-group">
+                           
+    <label for="phone"><?php echo $strings["uphone"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <div class="input-group-text pl-2 pr-2">+974</div> <!-- Prefix -->
+        </div>
+        <input type="tel" class="form-control" id="phone" name="phone" required>
+    </div>
+</div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo $strings["close_btn"][$lang]; ?></button>
                             <button type="submit" class="btn btn-primary"><?php echo $strings["submit_btn"][$lang]; ?></button>
