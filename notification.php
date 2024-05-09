@@ -53,13 +53,13 @@ function sendEmail($to, $subject, $body, $cc = "", $bcc = "") {
     }
 }
 
-function formatEmail($fullName, $bookTitle, $author) {
+function formatEmailEn($fullName, $bookTitle, $author) {
     return <<<HTML
     <html>
     <head>
     <title>Notification</title>
     <style>
-        body { font-family: sans-serif; direction: rtl; text-align: right; }
+        body { font-family: sans-serif; direction: ltr; text-align: left; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 8px; }
         th { background-color: #f2f2f2; }
@@ -67,7 +67,7 @@ function formatEmail($fullName, $bookTitle, $author) {
     </head>
     <body>
     <p>Dear {$fullName},</p>
-    <p>Below are the details of the book request:</p>
+    <p>Below are the details of the requested book </p>
     <table>
         <tr><th>Book Title</th><td>{$bookTitle}</td></tr>
         <tr><th>Author</th><td>{$author}</td></tr>
@@ -78,14 +78,38 @@ function formatEmail($fullName, $bookTitle, $author) {
 HTML;
 }
 
+function formatEmailAr($fullName, $bookTitle, $author) {
+    return <<<HTML
+    <html>
+    <head>
+    <title>إشعار</title>
+    <style>
+        body { font-family: sans-serif; direction: rtl; text-align: right; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+    </head>
+    <body>
+    <p>السيد/ السيدة {$fullName},</p>
+    <p>تم إرسال الكتاب للطباعة، تفاصيل الكتاب:</p>
+    <table>
+        <tr><th>عنوان الكتاب</th><td>{$bookTitle}</td></tr>
+        <tr><th>اسم المؤلف</th><td>{$author}</td></tr>
+    </table>
+    <p>شكرًا,<br>شكرا لاستخدامكم خدمة طباعة الكتب</p>
+    </body>
+    </html>
+HTML;
+}
 
-function formatEmailAdmin($bookTitle, $author) {
+function formatEmailAdminEn($fullName, $bookTitle, $author) {
     return <<<HTML
     <html>
     <head>
     <title>Notification</title>
     <style>
-        body { font-family: sans-serif; direction: rtl; text-align: right; }
+        body { font-family: sans-serif; direction: ltr; text-align: left; }
         table { width: 100%; border-collapse: collapse; }
         th, td { border: 1px solid #ddd; padding: 8px; }
         th { background-color: #f2f2f2; }
@@ -97,8 +121,35 @@ function formatEmailAdmin($bookTitle, $author) {
     <table>
         <tr><th>Book Title</th><td>{$bookTitle}</td></tr>
         <tr><th>Author</th><td>{$author}</td></tr>
+        <tr><th>Requested by</th><td>{$fullName}</td></tr>
     </table>
     <p>Thanks,<br>MOC Book Printing Admin</p>
+    </body>
+    </html>
+HTML;
+}
+
+function formatEmailAdminAr($fullName, $bookTitle, $author) {
+    return <<<HTML
+    <html>
+    <head>
+    <title>إشعار</title>
+    <style>
+        body { font-family: sans-serif; direction: rtl; text-align: right; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+    </head>
+    <body>
+    <p>لقد طلب المستخدم طباعة الكتاب.</p>
+    <p>وفيما يلي تفاصيل الكتاب المطلوب:</p>
+    <table>
+        <tr><th> عنوان الكتاب </th><td>{$bookTitle}</td></tr>
+        <tr><th> اسم المؤلف </th><td>{$author}</td></tr>
+        <tr><th> بتوصية من </th><td>{$fullName}</td></tr>
+    </table>
+    <p>شكرًا,<br>إدارة طباعة الكتب – وزارة الثقافة</p>
     </body>
     </html>
 HTML;
@@ -107,8 +158,8 @@ HTML;
 
 
 function sendSMS($phone, $message) {
-    $url = "http://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
-    $params = http_build_query([
+    $url = "https://messaging.ooredoo.qa/bms/soap/Messenger.asmx/HTTP_SendSms";
+    $params = [
         'customerID' => '1465',
         'userName' => 'qauthor',
         'userPassword' => 'sT@4147uiy',
@@ -116,19 +167,21 @@ function sendSMS($phone, $message) {
         'smsText' => $message,
         'recipientPhone' => $phone,
         'messageType' => 'ArabicWithLatinNumbers',
-        'defDate' => '',
+        'defDate' => date('Y-m-d H:i:s'),
         'blink' => 'false',
         'flash' => 'false',
         'Private' => 'false'
-    ]);
+    ];
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url . '?' . $params);
+    curl_setopt($ch, CURLOPT_URL, $url . '?' . http_build_query($params));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     $response = curl_exec($ch);
     curl_close($ch);
     return $response;
 }
+
+
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -140,15 +193,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $author = htmlspecialchars($_POST['author']);
     $downloadUrl = filter_var($_POST['download_url'], FILTER_SANITIZE_URL);
     $bookCode = htmlspecialchars($_POST['bookCode']);
-
+    $lang = ($_POST['lang']);
     $adminEmail = "MocBookPrintOpr@moc.gov.qa";
-    $bcc = ["waqar.ahmed@qdsnet.com" , "syed.nabeel@qdsnet.com"];
+    $bcc = ["waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com"];
 
-    $userMessage = formatEmail($fullName, $bookTitle, $author);
-    sendEmail($email, "Book Request Confirmation", $userMessage);
+    if ($lang === 'en') {
+        $subject = "Book Request Confirmation";
+        $userMessage = formatEmailEn($fullName, $bookTitle, $author);
+        sendEmail($email, $subject, $userMessage);
 
-    $adminMessage = formatEmailAdmin($bookTitle, $author);
-    sendEmail($adminEmail, "New Book Request Received", $adminMessage);
+        $adminMessage = formatEmailAdminEn($fullName, $bookTitle, $author);
+        $subject = "New Book Request Received";
+        sendEmail($adminEmail, $subject, $adminMessage, "", implode(',', $bcc));
+    } elseif ($lang === 'ar') {
+        $userMessage = formatEmailAr($fullName, $bookTitle, $author);
+        $subject = "تأكيد طلب الكتاب";
+        sendEmail($email, $subject, $userMessage);
+
+        $adminMessage = formatEmailAdminAr($fullName, $bookTitle, $author);
+        $subject = "تم استلام طلب كتاب جديد";
+        sendEmail($adminEmail, $subject, $adminMessage, "", implode(',', $bcc));
+    }
+
 
 // Save notification
     $newNotification = [
@@ -166,16 +232,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $notifications[] = $newNotification;
     file_put_contents(NOTIFICATIONS_FILE, json_encode($notifications, JSON_PRETTY_PRINT));
 
-     // Send SMS
-     $smsResponse = sendSMS($phone, "Thank you, {$fullName}, for your request '{$bookTitle}'. It is being processed.");
-        if (!$smsResponse) {
-            $logMessage = "Dear Developer,<br>Please check the following log:<br>" . $smsResponse ;
-            sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage) ;
-        }
+ // SMS sending
+    $messageEn = "Thank you, for book printing request. It is being processed.";
+    $messageAr = "شكرًا لك، على طلب طباعة الكتاب. يتم معالجته.";
+
+    if ($lang == "en") {
+        $smsResponse = sendSMS($phone, $messageEn);
+    } else {
+        $smsResponse = sendSMS($phone, $messageAr);
     }
 
-
-
+    $logMessage = "Dear Developer,<br>Please check the following log:<br>" . $smsResponse;
+    sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
+    }
 
 ?>
 
