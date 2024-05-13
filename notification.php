@@ -1,101 +1,12 @@
 <?php
 
-// Set CORS headers
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Define notifications file path
 define("NOTIFICATIONS_FILE", "notifications.json");
 
-// Include required files
-require_once 'email-sender.php';
-require_once 'email-formatting.php';
-require_once 'send-sms.php';
-
-// Set the default time zone to Qatar
-date_default_timezone_set('Asia/Qatar');
-
-// Get the current timestamp
-$currentTimestamp = time();
-
-// Format the timestamp as per the specified format
-$qatarTime = date("d M Y h:i A", $currentTimestamp);
-
 // Load notifications from file
 $notifications = json_decode(file_get_contents(NOTIFICATIONS_FILE), true) ?: [];
 
-
-// Process POST request
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Sanitize and validate input data
-    $fullName = htmlspecialchars($_POST['fullName']);
-    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
-    $bookTitle = htmlspecialchars($_POST['book_title']);
-    $author = htmlspecialchars($_POST['author']);
-    $downloadUrl = filter_var($_POST['download_url'], FILTER_SANITIZE_URL);
-    $bookCode = htmlspecialchars($_POST['bookCode']);
-    $lang = ($_POST['lang']);
-    $phone = htmlspecialchars($_POST['phone']);
-    $prefix = '+974';
-    $phone_with_prefix = $prefix . $phone;
-
-    //Define admin email and BCC recipients
-    
-    $adminEmail = "MocBookPrintOpr@moc.gov.qa";
-    $bcc = ["waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com"];
-
-    // Send confirmation emails based on language
-    if ($lang === 'en') {
-        $subject = "Book Request Confirmation";
-        $userMessage = formatEmailEn($fullName, $bookTitle, $author);
-        sendEmail($email, $subject, $userMessage);
-        $adminMessage = formatEmailAdminEn($fullName, $bookTitle, $author);
-    } elseif ($lang === 'ar') {
-        $subject = "تأكيد طلب الكتاب";
-        $userMessage = formatEmailAr($fullName, $bookTitle, $author);
-        sendEmail($email, $subject, $userMessage);
-        $adminMessage = formatEmailAdminAr($fullName, $bookTitle, $author);
-    }
-
-    // Send admin notification email
-    $subject = ($lang === 'en') ? "New Book Request Received" : "تم استلام طلب كتاب جديد";
-    sendEmail($adminEmail, $subject, $adminMessage, "", implode(',', $bcc));
-
-    // Save notification to file
-    $newNotification = [
-        "id" => count($notifications) + 1,
-        "name" => $fullName,
-        "email" => $email,
-        "phone" => $phone_with_prefix,
-        "file_no" => $bookCode,
-        "title" => $bookTitle,
-        "author" => $author,
-        "download_url" => $downloadUrl,
-        "timestamp" => $qatarTime
-    ];
-    $notifications[] = $newNotification;
-    file_put_contents(NOTIFICATIONS_FILE, json_encode($notifications, JSON_PRETTY_PRINT));
-
-     // Determine message based on language
-    $messageEn = "Thank you for your book printing request. It is being processed.";
-    $messageAr = "شكرا لك على طلبك لطباعة الكتاب. يتم المعالجة الآن.";
-    $smsResponse = ($lang == "en") ? sendSMS($phone_with_prefix, $messageEn) : sendSMS($phone_with_prefix, $messageAr);
-
-    // Log SMS response
-    $logMessage = "Dear Developer,<br>Please check the following log:<br>" . htmlspecialchars($smsResponse);
-    sendEmail('syednabeeljavedzaidi@gmail.com', 'MOC Book Print SMS API LOG', $logMessage);
-
-    // Pass logs to JavaScript
-    echo "<script>console.log('SMS Response: " . addslashes($smsResponse) . "');</script>";
-
-    // Display response message to the user
-    if (strpos($smsResponse, 'Error') === 0) {
-        echo "<p>Failed to send SMS: $smsResponse</p>";
-    } else {
-        echo "<p>SMS sent successfully!</p>";
-    }
-}
 
 ?>
 
@@ -109,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.0.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.0.1/js/dataTables.buttons.min.js"></script>
@@ -118,26 +30,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.0.1/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/plug-ins/2.0.7/sorting/datetime-moment.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
     <style>
-        .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 10px;
-        }
-        .header-section img {
-            width: 30%;  /* Reduced logo size */
-            height: auto;
-        }
-        .header-section h2 {
-            font-weight: bold;
-        }
-        /* Additional spacing below the DataTable */
-        #notificationsTable_wrapper {
-            margin-bottom: 50px;
-        }
+ /* Custom styles for DataTable */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 10px;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 10px;
+}
+.header-section img {
+    width: 20%;  /* Reduced logo size */
+    height: auto;
+}
+.header-section h2 {
+    font-weight: bold;
+}
+/* Additional spacing below the DataTable */
+#notificationsTable_wrapper {
+    margin-bottom: 50px;
+}
+
+/* Reduce left and right padding */
+.container {
+    padding-left: 11% !important;
+    padding-right: 11% !important;
+    max-width: 100% !important;
+}
+
+/* Styling for unread rows */
+.unread-row td {
+    font-weight: 600;
+   // border: 1px solid #8A1538 !important;
+}
+
+/* Fix table width and remove horizontal scrollbar */
+#notificationsTable {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Media queries for responsive design */
+@media only screen and (max-width: 576px) {
+    .container {
+        padding-left: 3% !important;
+        padding-right: 3% !important;
+    }
+}
+
+@media only screen and (min-width: 577px) and (max-width: 768px) {
+    .container {
+        padding-left: 5% !important;
+        padding-right: 5% !important;
+    }
+}
+
+@media only screen and (min-width: 769px) and (max-width: 992px) {
+    .container {
+        padding-left: 8% !important;
+        padding-right: 8% !important;
+    }
+}
+
+@media only screen and (min-width: 993px) {
+    .container {
+        padding-left: 10% !important;
+        padding-right: 10% !important;
+    }
+}
+
     </style>
+
 </head>
 <body>
 
@@ -149,8 +121,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <!-- DataTable -->
-    <table id="notificationsTable" class="display">
-        <thead>
+    <div class="table-responsive">
+        <table id="notificationsTable" class="table table-striped table-bordered">
+            <thead>
             <tr>
                 <th>S.No</th>
                 <th>Full Name</th>
@@ -160,27 +133,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <th>Book Title</th>
                 <th>Author Name</th>
                 <th>Timestamp</th>
+                <th>Action</th> <!-- New column for action -->
             </tr>
-        </thead>
-        <tbody>
-    <?php foreach ($notifications as $notification) {
+            </thead>
+            <tbody>
+           
+        <?php foreach ($notifications as $notification) {
 
-    echo '<tr>';
-    echo '<td>' . $notification["id"] . '</td>';
-    echo '<td>' . $notification["name"] . '</td>';
-    echo '<td>' . $notification["email"] . '</td>';
-    echo '<td>' . $notification["phone"] . '</td>';
-    echo '<td>' . $notification["file_no"] . '</td>';
-    echo '<td>' . $notification["title"] . '</td>';
-    echo '<td>' . $notification["author"] . '</td>';
-    echo '<td>' . $notification["timestamp"] . '</td>';
-    echo '</tr>';
-}
+            // Determine classes based on notification status and language
+            $statusClass = ($notification["status"] === 'unread') ? 'unread-row' : '';
+            $langClass = ($notification["lang"] === 'ar') ? 'rtl-text' : '';
+            $checkboxStatus = ($notification["status"] === 'read') ? 'checked' : ''; // Checkbox checked if status is read
 
+    // Construct the table row with appropriate classes and attributes
+            echo '<tr class="' . $statusClass . ' ' . $langClass . '">';
+            echo '<td>' . htmlspecialchars($notification["id"]) . '</td>';
+            echo '<td>' . htmlspecialchars($notification["name"]) . '</td>';
+            echo '<td>' . htmlspecialchars($notification["email"]) . '</td>';
+            echo '<td>' . htmlspecialchars($notification["phone"]) . '</td>';
+            echo '<td>' . htmlspecialchars($notification["file_no"]) . '</td>';
+            echo '<td>' . htmlspecialchars($notification["title"]) . '</td>';
+            echo '<td>' . htmlspecialchars($notification["author"]) . '</td>';
+            echo '<td>' . htmlspecialchars($notification["timestamp"]) . '</td>';
+            echo '<td style="text-align:center;">';
+            echo '<input type="checkbox" class="status-checkbox" data-id="' . htmlspecialchars($notification["id"]) . '" data-status="' . htmlspecialchars($notification["status"]) . '" ' . $checkboxStatus . '>';
+            echo '</td>'; // Action checkbox
+            echo '</tr>';
+    } ?>
 
- ?>
-        </tbody>
-    </table>
+           
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -237,6 +221,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setTimeout(function(){
             window.location.reload();
         }, 10000);
+    });
+
+    $(document).ready(function () {
+        // Update status when checkbox is clicked
+        $(document).on('click', '.status-checkbox', function () {
+            var checkbox = $(this);
+            var id = checkbox.data('id');
+            var status = checkbox.prop('checked') ? 'read' : 'unread';
+
+            $.ajax({
+                url: 'update-notification.php',
+                type: 'POST',
+                dataType: 'json', // Specify JSON data type for response
+                data: { id: id, status: status },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        // Update the UI with the new status
+                        checkbox.data('status', response.updated_status); // Update data-status attribute
+                        console.log(response.updated_status); // Debug: Log updated status
+                      toastr.success(`Notification marked as ${response.updated_status} successfully.`);
+                    } else {
+                        toastr.error('Error updating notification status: ' + response.message); // Use Toastr for notification
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors
+                    console.error(xhr.responseText);
+                    toastr.error('Error updating notification status.'); // Use Toastr for notification
+                }
+            });
+        });
+
+        // Update the initial UI status on page load
+        $('.status-checkbox').each(function() {
+            var checkbox = $(this);
+            var status = checkbox.data('status'); // Get the status from data-status attribute
+            console.log(status); // Debug: Log status
+
+            // Check or uncheck the checkbox based on the status
+            if (status === 'read') {
+                checkbox.prop('checked', true);
+            } else {
+                checkbox.prop('checked', false);
+            }
+        });
     });
 </script>
 
