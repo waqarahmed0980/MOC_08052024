@@ -62,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lang = $_POST['lang'] ?? '';
 
     // Define admin email and BCC recipients
-    // $adminEmail = "MocBookPrintOpr@moc.gov.qa";
-    $adminEmail = "syednabeeljavedzaidi@gmail.com";
+    $adminEmail = "MocBookPrintOpr@moc.gov.qa";
+    // $adminEmail = "syednabeeljavedzaidi@gmail.com";
     $bcc = ["waqar.ahmed@qdsnet.com", "syed.nabeel@qdsnet.com"];
 
 
