@@ -27,7 +27,7 @@ function sendSMS($phone_with_prefix, $message, $apiPassword) {
         'smsText' => $message,
         'recipientPhone' => $phone_with_prefix,
         'messageType' => 'ArabicWithLatinNumbers',
-        'defDate' => '',
+        'defDate' => date('YmdHis'),
         'blink' => 'false',
         'flash' => 'false',
         'Private' => 'false'
