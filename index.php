@@ -1,7 +1,7 @@
 <?php
 
 $strings = [
-"h2" => ["en" => "Book printing", "ar" => "طباعة الكتاب"],
+    "h2" => ["en" => "Book printing", "ar" => "طباعة الكتاب"],
     "button" => ["en" => "Get the book", "ar" => "اطبع الكتاب"],
     "pop_up_p" => ["en" => "Submit your information", "ar" => "أرسل معلوماتك"],
     "uname" => ["en" => "Full Name", "ar" => "الاسم الكامل"],
@@ -47,17 +47,18 @@ $books = [
     
     <style>
         body {
-            background-color: #f5f2e9;
-            background-image: url("images/background-moc.png");
-            background-size: cover;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-position: bottom center;
+            background-color: #f5f2e9; /* Background color */
+            background-image: url("images/background-moc.png"); /* Image URL */
+            background-size: auto 100px; /* Width auto, Height 100px */
+            background-attachment: fixed; /* Fixes the image position */
+            background-repeat: repeat-x; /* Repeats the image horizontally */
+            background-position: bottom center; /* Positions the image at the bottom center */
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: 100vh; /* Full viewport height */
             flex-direction: column;
+            overflow: hidden; /* Prevents scrolling */
         }
 
         .container {
@@ -180,7 +181,7 @@ $books = [
         .btn-select {
             margin-top: auto;
         }
-          /* In RTL mode */
+        /* In RTL mode */
 [dir="rtl"] .form-control {
     border-radius: 0.25rem 0 0 0.25rem; /* Adjust border radius */
 }
@@ -279,7 +280,7 @@ $books = [
                 </div>
                 <div class="modal-body">
                     <p><?php echo $strings["pop_up_p"][$lang]; ?></p>
-                    <form id="submission-form" method="post" action="notification.php">
+                    <form id="submission-form" method="post" >
                         <input  type="hidden" name="book_title" id="book_title">
                         <input  type="hidden" name="author" id="author">
                         <input  type="hidden" name="download_url" id="download_url">
@@ -293,13 +294,13 @@ $books = [
                             <label for="email"><?php echo $strings["uemail"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
                             <input type="email" required="required" class="form-control" id="email" name="email" required>
                         </div>
-                       <div class="form-group">   
-                        <label for="phone"><?php echo $strings["uphone"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text pl-2 pr-2">+974</div> <!-- Prefix -->
-                                </div>
-                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                        <div class="form-group">
+                            <label for="phone"><?php echo $strings["uphone"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                         <div class="input-group-text pl-2 pr-2">+974</div> <!-- Prefix -->
+                                    </div>
+                                <input type="tel" class="form-control <?php echo ($lang === 'ar') ? 'text-right' : ''; ?>" id="phone" name="phone" required>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -324,36 +325,85 @@ $books = [
             document.getElementById("bookCode").value = 'Book-'+ bookCode;
         }
 
-        document.getElementById("submission-form").addEventListener("submit", function (e) {
-            e.preventDefault();
-            const formData = $(this).serialize();
-            $('#exampleModal').modal('hide');
-            $.ajax({
-                url: 'notification.php',
-                type: 'POST',
-                data: formData,
-                success: function() {
-                    $('#submission-form').trigger("reset");
-                // $('#exampleModal').modal('hide');
-                    toastr.success("Notification Sent!", "Success", {
-                        positionClass: "toast-top-right",
-                        timeOut: 5000,
-                        extendedTimeOut: 1000,
-                    });
-                    $('#submission-form').trigger("reset");
-                },
-                error: function(xhr, status, error) {
-                    const errorMessage = xhr.status + ': ' + xhr.statusText;
-                    toastr.error("Failed to send notification - " + errorMessage, "Error", {
-                        positionClass: "toast-top-right",
-                        timeOut: 5000,
-                        extendedTimeOut: 1000,
-                    });
-                    $('#submission-form').trigger("reset");
-                }
-            });
+    document.getElementById("submission-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const formData = $(this).serialize();
+        $('#exampleModal').modal('hide');
+        
+        // Function to handle AJAX success
+function handleSuccess(response) {
+    // Log success
+    console.log("SMS Sent Successfully");
+
+    // Extract result from XML response
+    var result = $(response).find('Result').text();
+    console.log("Result: " + result);
+
+    // Display success message using Toastr
+    toastr.success(result, "Success", {
+        positionClass: "toast-top-right",
+        timeOut: 5000,
+        extendedTimeOut: 1000,
+    });
+}
+
+// Function to handle AJAX error
+function handleError(endpoint, xhr, status, error) {
+    // Log error
+    console.error(`Failed to send to ${endpoint} -`, xhr.status + ': ' + xhr.statusText);
+
+    // Display error message using Toastr
+    toastr.error(`Failed to send to ${endpoint}`, "Error", {
+        positionClass: "toast-top-right",
+        timeOut: 5000,
+        extendedTimeOut: 1000,
+    });
+}
+        
+        // AJAX call to record-update.php
+        $.ajax({
+            url: 'record-update.php',
+            type: 'POST',
+            data: formData,
+            success: function() {
+                handleSuccess('Record Updated!');
+            },
+            error: function(xhr, status, error) {
+                handleError('record-update.php', xhr, status, error);
+            }
         });
-    </script>
+        
+       // AJAX call to send-sms.php
+$.ajax({
+    url: 'send-sms.php',
+    type: 'POST',
+    data: formData,
+    success: function(response) {
+        handleSuccess(response);
+    },
+    error: function(xhr, status, error) {
+        handleError('send-sms.php', xhr, status, error);
+    }
+});
+        
+        // AJAX call to email-sender.php
+        $.ajax({
+            url: 'email-sender.php',
+            type: 'POST',
+            data: formData,
+            success: function() {
+                handleSuccess('Email Sent!');
+            },
+            error: function(xhr, status, error) {
+                handleError('email-sender.php', xhr, status, error);
+            }
+        });
+        
+        // Reset the form
+        $('#submission-form').trigger("reset");
+    });
+</script>
+
 
 </body>
 </html>
