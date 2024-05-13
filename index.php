@@ -1,5 +1,4 @@
 <?php
-
 $strings = [
     "h2" => ["en" => "Book printing", "ar" => "طباعة الكتاب"],
     "button" => ["en" => "Get the book", "ar" => "اطبع الكتاب"],
@@ -17,17 +16,12 @@ $strings = [
     "book_3_author" => ["en" => "Khaled Abdullah Abdul Aziz Ziara", "ar" => "خالد عبد الله عبد العزيز زيارة"],
 ];
 
-
-
-// Set the language
 $lang = isset($_GET['lang']) ? $_GET['lang'] : 'ar';
 $lang = in_array($lang, ['en', 'ar']) ? $lang : 'ar';
 $direction = ($lang == 'ar') ? 'rtl' : 'ltr';
 $textAlign = ($lang == 'ar') ? 'right' : 'left';
-
 $alignment = ($lang == 'ar') ? 'text-right' : 'text-left';
 
-// Sample Book Data
 $books = [
     ["id" => 1, "title" => "book_1_title", "author" => "book_1_author", "download_url" => "downloads/book-1.pdf"],
     ["id" => 2, "title" => "book_2_title", "author" => "book_2_author", "download_url" => "downloads/book-2.pdf"],
@@ -41,117 +35,39 @@ $books = [
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MOC Book Printing</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <link rel="icon" href="/images/favicon.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     
+    <?php if ($lang === 'ar'): ?>
+        <style>
+            @font-face {
+                font-family: 'QatarFont';
+                src: url('QatarFont-Regular.woff2') format('woff2'),
+                     url('QatarFont-Regular.woff') format('woff');
+                font-weight: normal;
+                font-style: normal;
+            }
+            body, button, input, textarea {
+                font-family: 'QatarFont', sans-serif;
+            }
+        </style>
+    <?php endif; ?>
     <style>
         body {
-            background-color: #f5f2e9; /* Background color */
-            background-image: url("images/background-moc.png"); /* Image URL */
-            background-size: auto 100px; /* Width auto, Height 100px */
-            background-attachment: fixed; /* Fixes the image position */
-            background-repeat: repeat-x; /* Repeats the image horizontally */
-            background-position: bottom center; /* Positions the image at the bottom center */
+            background-color: #f5f2e9;
+            background-image: url("images/background-moc.png");
+            background-size: contain;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-position: bottom;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh; /* Full viewport height */
+            min-height: 100vh;
             flex-direction: column;
-            overflow: hidden; /* Prevents scrolling */
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .book-card {
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .card {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            width: 45rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            background-color: white;
-            padding: 10px;
-        }
-
-        .card-body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            padding-left: 15px;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            text-align: <?php echo $textAlign; ?>;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            padding-left: 15px;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            text-align: <?php echo $textAlign; ?>;
-
-        }
-
-        .modal-body {
-            text-align: <?php echo $textAlign; ?>;
-        }
-
-        .modal-header .close {
-            text-align: <?php echo $textAlign; ?>;
-            margin: -1rem -1rem -1rem -1rem;
-        }
-
-        .btn {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            padding-left: 15px;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            text-align: <?php echo $textAlign; ?>;
-
-        }
-
-        .card-title {
-            margin-bottom: 5px;
-        }
-
-        .card-text {
-            margin-bottom: 5px;
-        }
-
-        .card-img {
-            width: 140px; 
-            height: auto;
-            object-fit: cover;
-        }
-
-        .btn-select {
-            background-color: black;
-            color: white;
-        }
-
-        .btn-select:hover {
-            background-color: #8A1538;
-            color: white;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
         }
 
         .modal-footer {
@@ -159,251 +75,236 @@ $books = [
             justify-content: flex-end;
         }
 
-        .modal-dialog-centered {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0 auto;
+        .card-img {
+            padding: 5px;
         }
 
-        .toast-top-right {
-            top: 12px;
-            right: 12px;
-            display: none !important;
-        }
-        .card-title {
-            height: 2.8em;
-        }
-        .card-text {
-            height: 2.8em;
-        }
-        .btn-select {
-            margin-top: auto;
-        }
         /* In RTL mode */
-[dir="rtl"] .form-control {
-    border-radius: 0.25rem 0 0 0.25rem; /* Adjust border radius */
-}
-
-[dir="rtl"] .input-group-prepend,
-[dir="rtl"] .input-group-text {
-    border-radius: 0 0.25rem 0.25rem 0; /* Adjust border radius */
-}
-    </style>
-
-        <?php if ($lang === 'ar'): ?>
-    <style>
-        @font-face {
-            font-family: 'QatarFont';
-            src: url('QatarFont-Regular.woff2') format('woff2'),
-                 url('QatarFont-Regular.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
+        /* [dir="rtl"] .modal-header .close {
+            margin-left: -1rem;
+            margin-right: 0;
         }
-        body, button, input, textarea {
-            font-family: 'QatarFont', sans-serif;
+
+        [dir="rtl"] .modal-footer {
+            flex-direction: row-reverse;
+        } */
+
+        [dir="rtl"] .form-control {
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
+
+        [dir="rtl"] .input-group-prepend,
+        [dir="rtl"] .input-group-text {
+            border-radius: 0.25rem 0 0 0.25rem;
+        }
+
+        /* General adjustments */
+        .card {
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            height: 4rem; /* Adjust height as needed */
+            overflow: hidden;
+        }
+
+        .card-text {
+            height: 4rem; /* Adjust height as needed */
+            overflow: hidden;
+        }
+
+        /* Full Width Handling */
+        .full-width {
+            width: 100%;
+        }
+
+        /* Responsive adjustments */
+        @media screen and (max-width: 1280px) {
+            body {
+                overflow-y: auto;
+            }
+        }
+
+        .min-h-screen {
+        min-height: 70vh;
         }
     </style>
-    <?php endif; ?>
-
 </head>
-<body class="text-<?php echo $alignment; ?>">
+<body class="flex flex-col items-center justify-center min-h-screen p-4 text-<?php echo $alignment; ?> full-width">
 
-
-
+    <!-- Logo -->
+    <div class="mb-2">
+        <img src="images/moc-logo-black.png" alt="Logo" class="w-96 mx-auto">
+    </div>
 
     <!-- Language Switcher -->
-    <?php  if ($_GET['lang'] == 'en') { ?>
-<div class="d-flex justify-content-end w-100 pr-4 mt-2">
-    <a href="?lang=ar" class="link">AR </a>
-</div>
+    <div class="flex justify-end w-full max-w-7xl mb-2">
+        <?php if ($lang == 'ar'): ?>
+            <a href="?lang=en" class="text-blue-500 px-2">EN</a>
+        <?php else: ?>
+            <a href="?lang=ar" class="text-blue-500 px-2">AR</a>
+        <?php endif; ?>
+    </div>
 
-<?php } else { ?>
+    <!-- Header -->
+    <h2 class="text-3xl font-bold mb-5"><?php echo $strings["h2"][$lang]; ?></h2>
 
-<div class="d-flex justify-content-end w-100 pl-4 mt-2">
-    <a href="?lang=en" class="link">EN</a>
-</div>
-
-<?php } ?>
-
-
-
-
-
-
-<!-- Header -->
-    <nav class="navbar navbar-light justify-content-center" style="margin-top: -30vh;">
-        <div class="container text-center">
-            <a class="navbar-brand d-flex flex-column align-items-center" href="#">
-                <img src="images/moc-logo-black.png" class="d-inline-block align-top" alt="Ministry of Culture" style="width: 75%; height: auto;">
-                <span class="h2 font-weight-bold mt-2"><?php echo $strings["h2"][$lang]; ?></span>
-            </a>
+    <!-- Cards Section -->
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-3 w-full max-w-7xl full-width">
+        <?php foreach ($books as $book): ?>
+           <a href="#" class="flex flex-col items-center bg-white border border-gray-200 rounded-lg shadow md:flex-row md:max-w-xl hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 card">
+    <img class="object-cover w-full h-48 md:h-auto md:w-48 md:rounded-none md:rounded-l-lg card-img" src="images/book-<?php echo $book['id']; ?>.jpg" alt="">
+    <div class="flex flex-col justify-between p-4 leading-normal card-body">
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-700 dark:text-white card-title"><?php echo $strings[$book['title']][$lang]; ?></h5>
+        <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 card-text"><?php echo $strings[$book['author']][$lang]; ?></p>
+        <div class="flex mt-auto">
+            <button onclick="setModalData('<?php echo $strings[$book['title']][$lang]; ?>', '<?php echo $strings[$book['author']][$lang]; ?>', '<?php echo $book['download_url']; ?>', '<?php echo $book['id']; ?>')" class="px-4 py-2 text-white bg-black rounded" data-toggle="modal" data-target="#bookFormModal">
+                <?php echo $strings["button"][$lang]; ?>
+            </button>
         </div>
-    </nav>
+    </div>
+</a>
 
-    <div class="container">
-        <div class="row">
-            <?php foreach ($books as $book): ?>
-            <div class="col-md-6 col-lg-4 book-card">
-                <div class="card">
-                    <div class="row no-gutters">
-                        <div class="col-auto">
-                            <img src="images/book-<?php echo $book['id']; ?>.jpg" class="card-img" alt="<?php echo $strings[$book['title']][$lang]; ?>">
-                        </div>
-                        <div class="col">
-                            <div class="card-body mt-2">
-                                <h5 class="card-title"><?php echo $strings[$book['title']][$lang]; ?></h5>
-                                <p class="card-text"><?php echo $strings[$book['author']][$lang]; ?></p>
-                                <button class="btn btn-select" data-toggle="modal" data-target="#exampleModal"
-    onclick="setModalData('<?php echo $strings[$book['title']][$lang]; ?>', '<?php echo $strings[$book['author']][$lang]; ?>', '<?php echo $book['download_url']; ?>', '<?php echo $book['id']; ?>')">
-    <?php echo $strings["button"][$lang]; ?>
-</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
+        <?php endforeach; ?>
     </div>
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel"><?php echo $strings["submit_btn"][$lang]; ?></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p><?php echo $strings["pop_up_p"][$lang]; ?></p>
-                    <form id="submission-form" method="post" >
-                        <input  type="hidden" name="book_title" id="book_title">
-                        <input  type="hidden" name="author" id="author">
-                        <input  type="hidden" name="download_url" id="download_url">
-                        <input  type="hidden" name="bookCode" id="bookCode">
-                        <input  type="hidden" name="lang" id="lang" value="<?php echo $lang; ?>">
-                        <div class="form-group">
-                            <label for="fullName"><?php echo $strings["uname"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
-                            <input type="text" required="required" class="form-control" id="fullName" name="fullName" required>
+    <div id="bookFormModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-80 hidden">
+        <div class="bg-white rounded-lg shadow-lg w-96">
+            <div class="px-4 py-2 text-lg font-bold border-b flex justify-between items-center">
+                <span id="bookFormModalLabel"></span>
+                <button onclick="closeModal()" class="text-gray-600 <?php echo $lang === 'ar' ? 'mr-auto ml-0' : 'ml-auto mr-0'; ?>">&times;</button>
+            </div>
+            <div class="p-4 space-y-4">
+                <p class="text-lg"><?php echo $strings["pop_up_p"][$lang]; ?></p>
+                <form id="submission-form" method="post" class="space-y-4">
+                    <input type="hidden" name="book_title" id="book_title">
+                    <input type="hidden" name="author" id="author">
+                    <input type="hidden" name="download_url" id="download_url">
+                    <input type="hidden" name="bookCode" id="bookCode">
+                    <input type="hidden" name="lang" id="lang" value="<?php echo $lang; ?>">
+
+                    <div class="form-group">
+                        <label for="fullName" class="text-lg"><?php echo $strings["uname"][$lang]; ?> <span class="text-red-500">*</span></label>
+                        <input type="text" required class="w-full px-4 py-2 border rounded" id="fullName" name="fullName">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="text-lg"><?php echo $strings["uemail"][$lang]; ?> <span class="text-red-500">*</span></label>
+                        <input type="email" required class="w-full px-4 py-2 border rounded" id="email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" class="text-lg"><?php echo $strings["uphone"][$lang]; ?> <span class="text-red-500">*</span></label>
+                        <div class="flex">
+                            <span class="px-2 py-2 border border-r-0 rounded-<?php echo ($lang === 'ar') ? 'r' : 'l'; ?> bg-gray-200">+974</span>
+                            <input type="tel" required class="w-full px-4 py-2 border rounded-<?php echo ($lang === 'ar') ? 'l' : 'r'; ?> <?php echo ($lang === 'ar') ? 'text-right' : ''; ?>" id="phone" name="phone">
                         </div>
-                        <div class="form-group">
-                            <label for="email"><?php echo $strings["uemail"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
-                            <input type="email" required="required" class="form-control" id="email" name="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone"><?php echo $strings["uphone"][$lang]; ?> <span style="color:#8A1538;"> * </span> </label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                         <div class="input-group-text pl-2 pr-2">+974</div> <!-- Prefix -->
-                                    </div>
-                                <input type="tel" class="form-control <?php echo ($lang === 'ar') ? 'text-right' : ''; ?>" id="phone" name="phone" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo $strings["close_btn"][$lang]; ?></button>
-                            <button type="submit" class="btn btn-primary"><?php echo $strings["submit_btn"][$lang]; ?></button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                    <div class="modal-footer flex justify-end space-x-2">
+                        <button type="button" onclick="closeModal()" class="ml-2 px-4 py-2 text-white bg-gray-500 rounded"><?php echo $strings["close_btn"][$lang]; ?></button>
+                        <button type="submit" class="px-4 py-2 text-white bg-black rounded"><?php echo $strings["submit_btn"][$lang]; ?></button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script>
-        function setModalData(title, author, downloadUrl, bookCode) {
-            document.getElementById("exampleModalLabel").innerText = title;
-            document.getElementById("book_title").value = title;
-            document.getElementById("author"). value = author;
-            document.getElementById("download_url").value = downloadUrl;
-            document.getElementById("bookCode").value = 'Book-'+ bookCode;
-        }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <script>
+
+    function setModalData(title, author, downloadUrl, bookCode) {
+        document.getElementById("bookFormModalLabel").innerText = title;
+        document.getElementById("book_title").value = title;
+        document.getElementById("author").value = author;
+        document.getElementById("download_url").value = downloadUrl;
+        document.getElementById("bookCode").value = 'Book-' + bookCode;
+        document.getElementById("bookFormModal").classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById("bookFormModal").classList.add('hidden');
+    }
 
     document.getElementById("submission-form").addEventListener("submit", function (e) {
         e.preventDefault();
         const formData = $(this).serialize();
-        $('#exampleModal').modal('hide');
-        
+        closeModal();
+
         // Function to handle AJAX success
-function handleSuccess(response) {
-    // Log success
-    console.log("SMS Sent Successfully");
+        function handleSuccess(response) {
+            console.log(response);
+        }
 
-    // Extract result from XML response
-    var result = $(response).find('Result').text();
-    console.log("Result: " + result);
+        // Function to handle AJAX error
+        function handleError(endpoint, xhr, status, error) {
+            console.error(`Failed to send to ${endpoint}`, error);
+        }
 
-    // Display success message using Toastr
-    toastr.success(result, "Success", {
-        positionClass: "toast-top-right",
-        timeOut: 5000,
-        extendedTimeOut: 1000,
-    });
-}
+        // Function to handle SMS AJAX success with XML response
+        function handleSMSSuccess(response) {
+            try {
+                // Extract the relevant information from the XML
+                const sendResult = $(response).find('SendResult').text();
+                // Log or display the extracted information
+                console.log("SMS Sent:", sendResult);
+            } catch (error) {
+                console.error("Failed to parse XML:", error.message);
+            }
+        }
 
-// Function to handle AJAX error
-function handleError(endpoint, xhr, status, error) {
-    // Log error
-    console.error(`Failed to send to ${endpoint} -`, xhr.status + ': ' + xhr.statusText);
-
-    // Display error message using Toastr
-    toastr.error(`Failed to send to ${endpoint}`, "Error", {
-        positionClass: "toast-top-right",
-        timeOut: 5000,
-        extendedTimeOut: 1000,
-    });
-}
-        
         // AJAX call to record-update.php
         $.ajax({
             url: 'record-update.php',
             type: 'POST',
             data: formData,
-            success: function() {
+            success: function(response) {
                 handleSuccess('Record Updated!');
             },
             error: function(xhr, status, error) {
                 handleError('record-update.php', xhr, status, error);
             }
         });
-        
-       // AJAX call to send-sms.php
-$.ajax({
-    url: 'send-sms.php',
-    type: 'POST',
-    data: formData,
-    success: function(response) {
-        handleSuccess(response);
-    },
-    error: function(xhr, status, error) {
-        handleError('send-sms.php', xhr, status, error);
-    }
-});
-        
+
+        // AJAX call to send-sms.php
+        $.ajax({
+            url: 'send-sms.php',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                handleSMSSuccess(response);
+            },
+            error: function(xhr, status, error) {
+                handleError('send-sms.php', xhr, status, error);
+            }
+        });
+
         // AJAX call to email-sender.php
         $.ajax({
             url: 'email-sender.php',
             type: 'POST',
             data: formData,
-            success: function() {
+            success: function(response) {
                 handleSuccess('Email Sent!');
             },
             error: function(xhr, status, error) {
                 handleError('email-sender.php', xhr, status, error);
             }
         });
-        
+
         // Reset the form
         $('#submission-form').trigger("reset");
     });
 </script>
-
 
 </body>
 </html>
