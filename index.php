@@ -56,7 +56,7 @@ $books = [
         body {
             background-color: #f5f2e9;
             background-image: url("images/moc-background.png");
-            background-size: contain;
+            background-size: cover;
             background-attachment: fixed;
             background-repeat: no-repeat;
             background-position: bottom;
