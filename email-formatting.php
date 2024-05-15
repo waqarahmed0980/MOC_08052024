@@ -46,7 +46,7 @@ function formatEmailAr($fullName, $bookTitle, $author) {
         <tr><th>عنوان الكتاب</th><td>{$bookTitle}</td></tr>
         <tr><th>اسم المؤلف</th><td>{$author}</td></tr>
     </table>
-    <p>شكرًا,<br>شكرا لاستخدامكم خدمة طباعة الكتب</p>
+    <p>شكرا لاستخدامكم خدمة طباعة الكتب</p>
     </body>
     </html>
 HTML;
