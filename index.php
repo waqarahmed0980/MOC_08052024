@@ -57,6 +57,7 @@ $books = [
             background-color: #f5f2e9;
             background-image: url("images/moc-background.png");
             background-size: cover;
+            background-size: cover;
             background-attachment: fixed;
             background-repeat: no-repeat;
             background-position: bottom;
@@ -143,10 +144,12 @@ $books = [
 <body class="flex flex-col items-center justify-center min-h-screen p-4 text-<?php echo $alignment; ?> full-width">
 
     <!-- Logo -->
+     <!-- 
     <div class="mb-2">
         <img src="images/moc-logo-black.png" alt="Logo" class="w-96 mx-auto">
     </div>
-
+    -->
+    
     <!-- Language Switcher -->
     <div class="flex justify-end w-full max-w-7xl mb-2">
         <?php if ($lang == 'ar'): ?>
