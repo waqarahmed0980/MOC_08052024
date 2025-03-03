@@ -54,21 +54,20 @@ $books = [
     <?php endif; ?>
     <style>
         body {
-            background-color: #f5f2e9;
-            background-image: url("images/moc-background-new.png");
-            background-size: cover;
-            background-size: cover;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-position: bottom;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            flex-direction: column;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
+        background-color: #f5f2e9;
+        background-image: url("images/moc-background-new.png");
+        background-size: cover;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-position: bottom bottom;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        flex-direction: column;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
         }
 
         .modal-footer {
