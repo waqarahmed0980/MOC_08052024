@@ -59,15 +59,12 @@ $books = [
         background-size: cover;
         background-attachment: fixed;
         background-repeat: no-repeat;
-        background-position: bottom bottom;
+        background-position: bottom center;
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
         flex-direction: column;
-        overflow: hidden;
-        margin: 0;
-        padding: 0;
         }
 
         .modal-footer {
@@ -148,6 +145,8 @@ $books = [
         <img src="images/moc-logo-black.png" alt="Logo" class="w-96 mx-auto">
     </div>
     -->
+
+    <div class="mb-2" style="height: 100px;"></div>
     
     <!-- Language Switcher -->
     <div class="flex justify-end w-full max-w-7xl mb-2">
@@ -159,7 +158,7 @@ $books = [
     </div>
 
     <!-- Header -->
-    <h2 class="text-3xl font-bold mb-5"><?php echo $strings["h2"][$lang]; ?></h2>
+    <h2 class="text-3xl font-bold mb-5 text-white"><?php echo $strings["h2"][$lang]; ?></h2>
 
     <!-- Cards Section -->
     <div class="grid grid-cols-1 gap-6 md:grid-cols-3 w-full max-w-7xl full-width">
